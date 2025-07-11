@@ -1,0 +1,23 @@
+version: '3.7'
+
+services:
+  n8n:
+    image: n8nio/n8n
+    restart: always
+    ports:
+      - "5678:5678"
+    environment:
+      - GENERIC_TIMEZONE=Europe/Brussels
+    volumes:
+      - n8n_data:/home/node/.n8n
+
+  ticket-nlp:
+    build: ./ticket-nlp
+    ports:
+      - "3000:3000"
+    volumes:
+      - ticket_nlp_data:/app/chroma_db
+
+volumes:
+  n8n_data:
+  ticket_nlp_data:

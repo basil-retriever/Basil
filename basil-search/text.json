@@ -1,0 +1,398 @@
+{
+  "name": "My workflow - Enhanced for Extracted Info (Fix iterable)",
+  "nodes": [
+    {
+      "parameters": {
+        "fromEmail": "jacobsniels10@gmail.com",
+        "toEmail": "jacobsniels10@gmail.com",
+        "subject": "🎉 You're Invited: AI Meetup 2025",
+        "text": "Please open the HTML email version to see full details.",
+        "html": "={{ $json[\"email_html\"] }}",
+        "options": {}
+      },
+      "id": "01e805e4-b507-46ed-883f-407f88d333ab",
+      "name": "Send Marketing Email",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 1,
+      "position": [
+        -380,
+        560
+      ],
+      "credentials": {
+        "smtp": {
+          "id": "EM8BD4PoUUkByny5",
+          "name": "SMTP account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "890823fe-09ef-4331-8ce0-01215b37b3b0",
+      "name": "Wait for Reply",
+      "type": "n8n-nodes-base.emailReadImap",
+      "typeVersion": 1,
+      "position": [
+        -180,
+        560
+      ],
+      "credentials": {
+        "imap": {
+          "id": "Mmo2qpcjT3e1qq6i",
+          "name": "IMAP account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.intent }}",
+              "value2": "purchase_ticket"
+            }
+          ]
+        }
+      },
+      "id": "f6daae85-7e30-45b7-88cf-ebd24aeaf089",
+      "name": "Check Intent (Purchase)",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        680,
+        460
+      ]
+    },
+    {
+      "parameters": {
+        "fromEmail": "jacobsniels10@gmail.com",
+        "toEmail": "={{ $json[\"from\"] }}",
+        "subject": "Need Attendee Info",
+        "text": "={{ $('Set Missing Info').item.json.ask_text }}",
+        "options": {}
+      },
+      "id": "7a82dea0-8832-4f60-9463-b4d433fdd2af",
+      "name": "Ask for More Info",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 1,
+      "position": [
+        1220,
+        340
+      ],
+      "credentials": {
+        "smtp": {
+          "id": "EM8BD4PoUUkByny5",
+          "name": "SMTP account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "fromEmail": "jacobsniels10@gmail.com",
+        "toEmail": "={{ $json[\"from\"] }}",
+        "subject": "Your Tickets Are Here 🎟️",
+        "text": "Thanks! Your tickets are attached.",
+        "attachments": [
+          {
+            "binaryPropertyName": "data"
+          }
+        ],
+        "options": {}
+      },
+      "id": "94e610ad-f20a-4f60-b654-92e7cfd9e161",
+      "name": "Send Ticket",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 1,
+      "position": [
+        1660,
+        440
+      ],
+      "credentials": {
+        "smtp": {
+          "id": "EM8BD4PoUUkByny5",
+          "name": "SMTP account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "fromEmail": "jacobsniels10@gmail.com",
+        "toEmail": "={{ $json[\"from\"] }}",
+        "subject": "Your Inquiry Regarding AI Meetup 2025",
+        "text": "Thank you for your message. A member of our team will review your inquiry and get back to you shortly.",
+        "options": {}
+      },
+      "id": "e2ae0073-9cc0-4889-b382-97fd7db9b5e0",
+      "name": "Send Human Response",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 1,
+      "position": [
+        920,
+        140
+      ],
+      "credentials": {
+        "smtp": {
+          "id": "EM8BD4PoUUkByny5",
+          "name": "SMTP account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://ticket-nlp:3000/detect_intent_chromadb",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "text",
+              "value": "={{ $json.cleaned_email_text }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        320,
+        560
+      ],
+      "id": "d2eb91a9-974a-40c0-a284-4aea120d984b",
+      "name": "Call Intent Detection API"
+    },
+    {
+      "parameters": {
+        "jsCode": "let emailText = $input.first().json.textPlain;\nif (typeof emailText !== 'string') {\n  emailText = '';\n}\nconst separatorIndex = emailText.indexOf('\\n\\n');\nif (separatorIndex !== -1) {\n  emailText = emailText.substring(0, separatorIndex).trim();\n} else {\n  emailText = emailText.trim();\n}\n$input.first().json.cleaned_email_text = emailText;\nreturn $input.all();"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        40,
+        560
+      ],
+      "id": "cdccf8ce-38f9-4676-b107-f173f07b2be0",
+      "name": "Clean Email Text"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://ticket-nlp:3000/generate-pdf",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"attendees\": [\n{{ $json.attendee_data }}\n  ]\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1460,
+        440
+      ],
+      "id": "5b828188-093b-4681-a0d7-6738ff6eb808",
+      "name": "Generate Ticket PDF"
+    },
+    {
+      "parameters": {
+        "values": [
+          {
+            "name": "missingInfo",
+            "value": "={{ ($json.extracted_info.ticket_count === 'undetected' || $json.extracted_info.ticket_count === null || typeof $json.extracted_info.ticket_count !== 'number' || $json.extracted_info.ticket_count <= 0) || ($json.extracted_info.names.length === 0) }}"
+          },
+          {
+            "name": "ask_text",
+            "value": "=Thank you for your inquiry about tickets. "
+          },
+          {
+            "name": "combine_text",
+            "value": ""
+          }
+        ],
+        "options": {
+          "fieldMappingMode": "json"
+        }
+      },
+      "id": "1b0922ce-138d-4860-bf8f-8d7607730e20",
+      "name": "Set Missing Info",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [
+        980,
+        340
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{ $json.missingInfo }}"
+            }
+          ]
+        }
+      },
+      "id": "0d611802-9904-4e20-802c-35a16518a4a5",
+      "name": "Check Missing Info",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        1120,
+        340
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "let ticketCount = $json.extracted_info.ticket_count;\nlet names = $json.extracted_info.names;\n\nlet attendeeData = [];\n\nif (ticketCount !== 'undetected' && ticketCount !== null && typeof ticketCount === 'number' && ticketCount > 0) {\n  for (let i = 0; i < ticketCount; i++) {\n    let name = names[i] || 'Attendee ' + (i + 1);\n    attendeeData.push({\n      \"name\": name,\n      \"email\": $json.from\n    });\n  }\n} else if (names.length > 0) {\n  for (let name of names) {\n    attendeeData.push({\n      \"name\": name,\n      \"email\": $json.from\n    });\n  }\n}\n\nlet formattedAttendees = attendeeData.map(person => {\n  let escapedName = person.name ? person.name.replace(/\"/g, '\\\\"') : '';\n  let escapedEmail = person.email ? person.email.replace(/\"/g, '\\\\"') : '';\n  return `    {\\n      \\\"name\\\": \\\"${escapedName}\\\",\\n      \\\"email\\\": \\\"${escapedEmail}\\\"\\n    }`;\n}).join(',\\n');\n\n$json.attendee_data = formattedAttendees;\n\nreturn $input.all();"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1320,
+        440
+      ],
+      "id": "e72d2b51-5c8e-4903-a15e-d5964f77c223",
+      "name": "Prepare Attendee Data"
+    },
+    {
+      "parameters": {
+        "jsCode": "let extractedInfo = $json.extracted_info || {};\n\n// Ensure names is an array\nif (!Array.isArray(extractedInfo.names)) {\n  extractedInfo.names = [];\n}\n\n// Ensure ticket_count has a sensible default if not detected or invalid\nif (extractedInfo.ticket_count === 'undetected' || extractedInfo.ticket_count === null || typeof extractedInfo.ticket_count !== 'number' || extractedInfo.ticket_count < 0) {\n  extractedInfo.ticket_count = null; // Or 1, depending on default assumption\n}\n\n$json.extracted_info = extractedInfo;\n\nreturn $input.all();"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        500,
+        560
+      ],
+      "id": "c1f7a6b2-d3e9-4e7a-9a99-b1c7d2b0e92f",
+      "name": "Normalize Extracted Info"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Check Intent (Purchase)": {
+      "main": [
+        [
+          {
+            "node": "Set Missing Info",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send Human Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait for Reply": {
+      "main": [
+        [
+          {
+            "node": "Clean Email Text",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call Intent Detection API": {
+      "main": [
+        [
+          {
+            "node": "Normalize Extracted Info",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Clean Email Text": {
+      "main": [
+        [
+          {
+            "node": "Call Intent Detection API",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Ticket PDF": {
+      "main": [
+        [
+          {
+            "node": "Send Ticket",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Missing Info": {
+      "main": [
+        [
+          {
+            "node": "Check Missing Info",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Missing Info": {
+      "main": [
+        [
+          {
+            "node": "Ask for More Info",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Prepare Attendee Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Attendee Data": {
+      "main": [
+        [
+          {
+            "node": "Generate Ticket PDF",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize Extracted Info": {
+      "main": [
+        [
+          {
+            "node": "Check Intent (Purchase)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "47deb812-c5bf-41dd-b863-6ce9c536fc0d",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "4c7824ad56b9385cb116b15ee236f658b2471dd17e3a0901f1d335287c43a88b"
+  },
+  "id": "my_enhanced_workflow_with_info_check_and_fix",
+  "tags": []
+}

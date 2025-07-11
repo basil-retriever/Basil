@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Basil Search - Documentation</title>
+    <style>
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
+            max-width: 1200px; 
+            margin: 0 auto; 
+            padding: 20px; 
+            line-height: 1.6; 
+            color: #333; 
+        }
+        .header { 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+            color: white; 
+            padding: 40px; 
+            border-radius: 10px; 
+            margin-bottom: 30px; 
+            text-align: center; 
+        }
+        .nav { 
+            background: #f8f9fa; 
+            padding: 15px; 
+            border-radius: 8px; 
+            margin-bottom: 30px; 
+        }
+        .nav a { 
+            color: #495057; 
+            text-decoration: none; 
+            margin-right: 20px; 
+            font-weight: 500; 
+        }
+        .nav a:hover { color: #007bff; }
+        .section { 
+            background: white; 
+            padding: 30px; 
+            margin-bottom: 20px; 
+            border-radius: 8px; 
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1); 
+        }
+        .code { 
+            background: #f8f9fa; 
+            padding: 15px; 
+            border-radius: 5px; 
+            font-family: 'Monaco', 'Consolas', monospace; 
+            overflow-x: auto; 
+            border-left: 4px solid #007bff; 
+        }
+        .endpoint { 
+            background: #e7f3ff; 
+            padding: 10px; 
+            border-radius: 5px; 
+            margin: 10px 0; 
+            border-left: 4px solid #0066cc; 
+        }
+        .method { 
+            display: inline-block; 
+            padding: 2px 8px; 
+            border-radius: 3px; 
+            font-size: 12px; 
+            font-weight: bold; 
+            margin-right: 10px; 
+        }
+        .get { background: #28a745; color: white; }
+        .post { background: #007bff; color: white; }
+        .feature { 
+            background: #f0f8ff; 
+            padding: 20px; 
+            margin: 15px 0; 
+            border-radius: 5px; 
+            border-left: 4px solid #4CAF50; 
+        }
+        table { 
+            width: 100%; 
+            border-collapse: collapse; 
+            margin: 20px 0; 
+        }
+        th, td { 
+            border: 1px solid #ddd; 
+            padding: 12px; 
+            text-align: left; 
+        }
+        th { 
+            background: #f8f9fa; 
+            font-weight: 600; 
+        }
+        .btn { 
+            display: inline-block; 
+            padding: 10px 20px; 
+            background: #007bff; 
+            color: white; 
+            text-decoration: none; 
+            border-radius: 5px; 
+            margin: 5px; 
+        }
+        .btn:hover { background: #0056b3; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🌿 Basil Search</h1>
+        <p>AI-Powered Website Content Scraper & Semantic Search Engine</p>
+        <p>Transform any website into a searchable knowledge base with AI-generated search patterns</p>
+    </div>
+
+    <nav class="nav">
+        <a href="#overview">Overview</a>
+        <a href="#features">Features</a>
+        <a href="#quickstart">Quick Start</a>
+        <a href="#api">API Reference</a>
+        <a href="#docker">Docker Deployment</a>
+        <a href="#configuration">Configuration</a>
+    </nav>
+
+    <section id="overview" class="section">
+        <h2>Overview</h2>
+        <p>Basil Search is a comprehensive Python application that scrapes website content, processes it with AI-powered search sentence generation, and provides semantic search capabilities through ChromaDB vector database.</p>
+        
+        <div class="feature">
+            <h3>🚀 Key Capabilities</h3>
+            <ul>
+                <li><strong>Website Scraping:</strong> Extract content from any website with intelligent link discovery</li>
+                <li><strong>AI Processing:</strong> Generate search sentences using Groq API for better semantic matching</li>
+                <li><strong>Vector Search:</strong> ChromaDB integration for similarity-based content retrieval</li>
+                <li><strong>REST API:</strong> FastAPI-based endpoints for search functionality</li>
+                <li><strong>Docker Ready:</strong> Complete containerization for easy deployment</li>
+            </ul>
+        </div>
+    </section>
+
+    <section id="features" class="section">
+        <h2>Features</h2>
+        <div class="feature">
+            <h3>🌐 Website Scraping</h3>
+            <p>Intelligent content extraction with configurable depth and filtering</p>
+            <ul>
+                <li>Automatic link discovery and following</li>
+                <li>Content cleaning and markdown conversion</li>
+                <li>Rate limiting and error handling</li>
+                <li>Domain-specific filtering</li>
+            </ul>
+        </div>
+
+        <div class="feature">
+            <h3>🤖 AI-Powered Processing</h3>
+            <p>Generate natural language search patterns using Groq API</p>
+            <ul>
+                <li>Context-aware sentence generation</li>
+                <li>Multiple search pattern variations</li>
+                <li>Intent-based query matching</li>
+                <li>Semantic understanding</li>
+            </ul>
+        </div>
+
+        <div class="feature">
+            <h3>🔍 Semantic Search</h3>
+            <p>Vector-based similarity search with ChromaDB</p>
+            <ul>
+                <li>Similarity scoring and ranking</li>
+                <li>Metadata filtering and enrichment</li>
+                <li>Real-time search capabilities</li>
+                <li>Scalable vector storage</li>
+            </ul>
+        </div>
+    </section>
+
+    <section id="quickstart" class="section">
+        <h2>Quick Start</h2>
+        
+        <h3>🐳 Docker Deployment (Recommended)</h3>
+        <div class="code">
+# Clone and setup
+git clone &lt;repository-url&gt;
+cd basil-search
+
+# Configure environment
+cp .env.example .env
+# Add your GROQ_API_KEY to .env
+
+# Build and run
+docker-compose up --build
+
+# API available at http://localhost:8000
+        </div>
+
+        <h3>🐍 Local Development</h3>
+        <div class="code">
+# Install dependencies
+pip install -r requirements.txt
+
+# Setup environment
+cp .env.example .env
+# Add your GROQ_API_KEY to .env
+
+# One-click website indexing
+python pipeline.py --url https://example.com --all
+
+# API available at http://localhost:8000
+        </div>
+
+        <h3>⚡ Quick Test</h3>
+        <div class="code">
+# Test search
+curl "http://localhost:8000/search/query?q=website%20development"
+
+# Health check
+curl "http://localhost:8000/health"
+        </div>
+    </section>
+
+    <section id="api" class="section">
+        <h2>API Reference</h2>
+        
+        <div class="endpoint">
+            <span class="method get">GET</span>
+            <strong>/</strong> - API information and available endpoints
+        </div>
+
+        <div class="endpoint">
+            <span class="method post">POST</span>
+            <strong>/search</strong> - Semantic search with JSON body
+            <div class="code">
+{
+  "query": "website development services",
+  "max_results": 5
+}
+            </div>
+        </div>
+
+        <div class="endpoint">
+            <span class="method get">GET</span>
+            <strong>/search/query</strong> - Search with query parameters
+            <div class="code">
+GET /search/query?q=website%20development&max_results=10
+            </div>
+        </div>
+
+        <div class="endpoint">
+            <span class="method get">GET</span>
+            <strong>/health</strong> - Health check and database status
+        </div>
+
+        <div class="endpoint">
+            <span class="method get">GET</span>
+            <strong>/stats</strong> - Collection statistics and metrics
+        </div>
+
+        <div class="endpoint">
+            <span class="method post">POST</span>
+            <strong>/reload</strong> - Reload database with latest processed content
+        </div>
+
+        <h3>Response Format</h3>
+        <div class="code">
+{
+  "query": "search query text",
+  "results": [
+    {
+      "document": "content text...",
+      "metadata": {
+        "title": "Page Title",
+        "source": "https://example.com/page",
+        "source_type": "content"
+      },
+      "similarity": 0.85,
+      "distance": 0.15
+    }
+  ],
+  "total_results": 1,
+  "processing_time": 0.123
+}
+        </div>
+    </section>
+
+    <section id="docker" class="section">
+        <h2>Docker Deployment</h2>
+        
+        <h3>🚀 Production Deployment</h3>
+        <div class="code">
+# Full stack with Nginx
+docker-compose --profile production up -d
+
+# Just the search service
+docker-compose up -d basil-search
+
+# Run scraping job
+TARGET_URL=https://example.com docker-compose --profile scraping run scraper
+        </div>
+
+        <h3>⚙️ Service Configuration</h3>
+        <table>
+            <tr><th>Service</th><th>Purpose</th><th>Port</th></tr>
+            <tr><td>basil-search</td><td>Main search API</td><td>8000</td></tr>
+            <tr><td>nginx</td><td>Reverse proxy</td><td>80, 443</td></tr>
+            <tr><td>scraper</td><td>Website scraping job</td><td>-</td></tr>
+        </table>
+
+        <h3>🔧 Environment Variables</h3>
+        <table>
+            <tr><th>Variable</th><th>Description</th><th>Required</th></tr>
+            <tr><td>GROQ_API_KEY</td><td>Groq API key for AI processing</td><td>Yes</td></tr>
+            <tr><td>TARGET_URL</td><td>Website URL to scrape</td><td>For scraping</td></tr>
+            <tr><td>API_HOST</td><td>Server host address</td><td>No</td></tr>
+            <tr><td>API_PORT</td><td>Server port number</td><td>No</td></tr>
+        </table>
+    </section>
+
+    <section id="configuration" class="section">
+        <h2>Configuration</h2>
+        
+        <h3>📁 Project Structure</h3>
+        <div class="code">
+basil-search/
+├── src/                    # Source code
+│   ├── api/               # FastAPI endpoints
+│   ├── database/          # ChromaDB management
+│   ├── processors/        # Content processing
+│   ├── scrapers/          # Website scraping
+│   └── utils/             # Utility functions
+├── data/                  # Data storage
+│   ├── scraped_pages/    # Raw content
+│   └── processed/        # Processed files
+├── chroma_db/            # Vector database
+├── docs/                 # Documentation
+├── pipeline.py           # Main automation script
+├── docker-compose.yml    # Docker configuration
+└── requirements.txt      # Dependencies
+        </div>
+
+        <h3>⚙️ Configuration Options</h3>
+        <table>
+            <tr><th>Setting</th><th>Default</th><th>Description</th></tr>
+            <tr><td>DEFAULT_MAX_PAGES</td><td>50</td><td>Maximum pages to scrape</td></tr>
+            <tr><td>REQUEST_TIMEOUT</td><td>10</td><td>HTTP request timeout (seconds)</td></tr>
+            <tr><td>RATE_LIMIT_DELAY</td><td>1</td><td>Delay between requests (seconds)</td></tr>
+            <tr><td>CHROMA_COLLECTION_NAME</td><td>website_content</td><td>Database collection name</td></tr>
+            <tr><td>EMBEDDING_MODEL</td><td>all-MiniLM-L6-v2</td><td>Sentence transformer model</td></tr>
+        </table>
+
+        <h3>🔧 Pipeline Commands</h3>
+        <div class="code">
+# Check configuration
+python pipeline.py --check-config
+
+# Test API connection
+python pipeline.py --test-groq
+
+# Scrape website
+python pipeline.py --url https://example.com --scrape
+
+# Process content
+python pipeline.py --process
+
+# Load into database
+python pipeline.py --load
+
+# Start server
+python pipeline.py --serve
+
+# Complete pipeline
+python pipeline.py --url https://example.com --all
+        </div>
+    </section>
+
+    <footer class="section" style="text-align: center; color: #666;">
+        <p>🌿 Basil Search - AI-Powered Website Content Scraper & Search Engine</p>
+        <p>Built with Python, FastAPI, ChromaDB, and Groq AI</p>
+    </footer>
+</body>
+</html>
