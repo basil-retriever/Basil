@@ -15,7 +15,7 @@ Transform websites into intelligent, searchable knowledge bases with automated t
 ### One-Command Deployment
 
 ```bash
-git clone <repository-url>
+git clone https://github.com/basil-retriever/Basil
 cd Basil
 docker-compose up -d
 ```
