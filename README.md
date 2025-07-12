@@ -2,7 +2,7 @@
 
 **AI-Powered Business Automation Platform**
 
-Transform websites into intelligent, searchable knowledge bases with automated ticket generation and workflow orchestration.
+Transform websites into intelligent, searchable knowledge bases with workflow orchestration.
 
 [![Docker](https://img.shields.io/badge/Docker-Ready-blue?logo=docker)](./docker-compose.yml)
 [![FastAPI](https://img.shields.io/badge/FastAPI-Framework-green?logo=fastapi)](./basil-search/)
@@ -22,7 +22,6 @@ docker-compose up -d
 
 **Access Points:**
 - 🔍 **Search API**: `http://localhost:8000`
-- 🎫 **Ticket Generation**: `http://localhost:8000/generate-ticket`
 - 🤖 **Workflow Automation**: `http://localhost:5678`
 - 📊 **API Documentation**: `http://localhost:8000/docs`
 
@@ -45,11 +44,6 @@ Basil is a comprehensive business automation platform that combines:
 - **Website Scraping**: Automatically extract and process website content
 - **AI-Powered Analysis**: Generate searchable content using advanced language models
 - **Semantic Search**: Find relevant information using natural language queries
-
-### 🎫 **Automated Ticket Generation** 
-- **Intent Detection**: Automatically identify customer requests and requirements
-- **PDF Generation**: Create professional tickets and documents
-- **Smart Routing**: Route requests based on content analysis
 
 ### 🔄 **Workflow Orchestration**
 - **N8N Integration**: Visual workflow builder for complex automation
@@ -74,7 +68,6 @@ Basil Platform
 │   └── Content Management
 │
 └── 🎫 Document Services
-    ├── PDF Ticket Generation
     ├── Intent Detection
     └── Customer Request Processing
 ```
@@ -107,14 +100,6 @@ curl -X POST "http://localhost:8000/search" \
   -d '{"query": "customer support services", "max_results": 10}'
 ```
 
-### 🎫 **Automated Document Generation**
-```bash
-# Generate PDF tickets
-curl -X POST "http://localhost:8000/generate-ticket" \
-  -H "Content-Type: application/json" \
-  -d '{"text": "I need a website for my restaurant", "customer_name": "John Doe"}'
-```
-
 ### 🤖 **Workflow Automation**
 - **Visual Builder**: Create complex workflows using N8N's drag-and-drop interface
 - **API Integration**: Connect to external services and APIs
@@ -133,12 +118,6 @@ python pipeline.py --url https://example.com --all
 
 # 2. Search the processed content
 curl "http://localhost:8000/search/query?q=your%20search%20query"
-
-# 3. Generate tickets from search results
-curl -X POST "http://localhost:8000/generate-ticket" \
-  -H "Content-Type: application/json" \
-  -d '{"text": "search result content", "customer_name": "Customer"}'
-```
 
 ### Workflow Automation Example
 
@@ -226,7 +205,6 @@ API_PORT=8000
 
 | Method | Endpoint | Description | Example |
 |--------|----------|-------------|---------|
-| `POST` | `/generate-ticket` | Create PDF ticket | `{"text": "content", "customer_name": "name"}` |
 | `POST` | `/detect_intent` | Analyze intent | `{"text": "customer message"}` |
 | `POST` | `/reload` | Reload database | Refresh vector store |
 
@@ -244,20 +222,6 @@ API_PORT=8000
   ],
   "query": "website development",
   "total_results": 1
-}
-```
-
-**Ticket Generation Response:**
-```json
-{
-  "status": "success",
-  "ticket_id": "TICKET_20240101_001",
-  "pdf_path": "/path/to/ticket.pdf",
-  "details": {
-    "customer_name": "John Doe",
-    "detected_intent": "website_development",
-    "estimated_cost": "$2,500"
-  }
 }
 ```
 
@@ -388,7 +352,6 @@ docker-compose --profile production up -d
 ## 🌟 Use Cases
 
 ### 🏢 **Business Automation**
-- **Customer Support**: Automatic ticket generation from inquiries
 - **Content Management**: Searchable knowledge bases from websites
 - **Lead Processing**: Extract and route customer requirements
 
