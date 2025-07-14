@@ -1,8 +1,16 @@
 # 🌿 Basil
 
-**AI-Powered Business Automation Platform**
+**Extremely easy AI-Powered search**
 
-Transform websites into intelligent, searchable knowledge bases with workflow orchestration.
+With just 2 commands, Basil fetches your website data and creates a powerfull RAG search engine to use in your site.
+
+Example: Imagine you have a website with 1000 pages, and you want to create a search engine that can answer questions like "What is the price of your services?" or "How can I contact support?". Basil will scrape your website, process the content using AI, and create a search engine that can answer these questions in seconds.
+
+
+How does it work: 
+1. **Scrape**: Basil scrapes your website and extracts the content.
+2. **Process**: It processes the content using AI to create a searchable index, then places your example sentences in a chromaDb
+3. **Search**: You can you use the build in endpoint `/search` to integrate in your website.
 
 [![Docker](https://img.shields.io/badge/Docker-Ready-blue?logo=docker)](./docker-compose.yml)
 [![FastAPI](https://img.shields.io/badge/FastAPI-Framework-green?logo=fastapi)](./basil-search/)
@@ -22,7 +30,6 @@ docker-compose up -d
 
 **Access Points:**
 - 🔍 **Search API**: `http://localhost:8000`
-- 🤖 **Workflow Automation**: `http://localhost:5678`
 - 📊 **API Documentation**: `http://localhost:8000/docs`
 
 ### Local Development
@@ -36,31 +43,10 @@ docker-compose up --build
 
 ---
 
-## 🌟 What is Basil?
-
-Basil is a comprehensive business automation platform that combines:
-
-### 🧠 **Intelligent Content Processing**
-- **Website Scraping**: Automatically extract and process website content
-- **AI-Powered Analysis**: Generate searchable content using advanced language models
-- **Semantic Search**: Find relevant information using natural language queries
-
-### 🔄 **Workflow Orchestration**
-- **N8N Integration**: Visual workflow builder for complex automation
-- **API Orchestration**: Connect multiple services and external APIs
-- **Event-Driven Processing**: React to triggers and automate responses
-
----
-
 ## 🏗️ Architecture
 
 ```
 Basil Platform
-├── 🌐 Web Interface (Port 5678)
-│   ├── N8N Workflow Engine
-│   ├── Visual Automation Builder
-│   └── External API Integrations
-│
 ├── 🔍 Search Engine (Port 8000)
 │   ├── FastAPI REST Endpoints
 │   ├── ChromaDB Vector Database
@@ -77,7 +63,6 @@ Basil Platform
 | Component | Description | Port | Technology |
 |-----------|-------------|------|------------|
 | **Basil Search** | AI-powered search and content processing | 8000 | FastAPI, ChromaDB, Groq |
-| **N8N Workflows** | Visual automation and workflow orchestration | 5678 | N8N.io |
 | **Vector Database** | Semantic search and content storage | - | ChromaDB, SQLite |
 
 ---
@@ -99,14 +84,6 @@ curl -X POST "http://localhost:8000/search" \
   -H "Content-Type: application/json" \
   -d '{"query": "customer support services", "max_results": 10}'
 ```
-
-### 🤖 **Workflow Automation**
-- **Visual Builder**: Create complex workflows using N8N's drag-and-drop interface
-- **API Integration**: Connect to external services and APIs
-- **Event Triggers**: Automate responses to webhooks, schedules, and data changes
-
----
-
 ## 🚀 Usage Examples
 
 ### Content Processing Pipeline
@@ -118,18 +95,9 @@ python pipeline.py --url https://example.com --all
 
 # 2. Search the processed content
 curl "http://localhost:8000/search/query?q=your%20search%20query"
-
-### Workflow Automation Example
-
-1. **Visit**: `http://localhost:5678`
-2. **Create Workflow**: Use the visual editor to build automation
-3. **Connect Services**: Link Basil Search API with external tools
-4. **Deploy**: Activate workflows for automatic processing
-
 ---
 
 ## 🐳 Docker Configuration
-
 ### Full Stack Deployment
 ```bash
 # Start all services
@@ -174,9 +142,6 @@ cp basil-search/.env.example basil-search/.env
 
 # Edit with your settings
 GROQ_API_KEY=your_groq_api_key_here
-TARGET_URL=https://website-to-process.com
-API_HOST=0.0.0.0
-API_PORT=8000
 ```
 
 ### Service Configuration
@@ -184,9 +149,6 @@ API_PORT=8000
 | Variable | Service | Description | Required |
 |----------|---------|-------------|----------|
 | `GROQ_API_KEY` | Search | AI processing API key | ✅ |
-| `TARGET_URL` | Scraper | Website to process | For scraping |
-| `GENERIC_TIMEZONE` | N8N | Workflow timezone | No |
-
 ---
 
 ## 📊 API Reference
