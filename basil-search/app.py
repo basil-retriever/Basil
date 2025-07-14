@@ -3,7 +3,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-from routers import ask, detect_intent, generate_ticket
+from routers import ask, detect_intent, site_scanner
 
 app = FastAPI(title="BasilApi", version="1.0")
 
