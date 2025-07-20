@@ -123,7 +123,7 @@ class WebsitePipeline:
         
         try:
             import uvicorn
-            from src.api import app
+            from app import app
             
             uvicorn.run(
                 app,

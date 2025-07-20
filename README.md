@@ -2,7 +2,7 @@
 
 **Extremely easy AI-Powered search**
 
-With just 2 commands, Basil fetches your website data and creates a powerfull RAG search engine to use in your site.
+With just 1 command, Basil fetches your website data and creates a powerfull RAG search engine to use in your site.
 
 Example: Imagine you have a website with 1000 pages, and you want to create a search engine that can answer questions like "What is the price of your services?" or "How can I contact support?". Basil will scrape your website, process the content using AI, and create a search engine that can answer these questions in seconds.
 
@@ -26,8 +26,19 @@ How does it work:
 git clone https://github.com/basil-retriever/Basil
 cd Basil
 docker-compose up -d
+curl -X POST http://localhost:3000/index?site=https://example.com
+
 ```
 
+#### No Docker user?
+
+```bash
+git clone https://github.com/basil-retriever/Basil
+cd Basil
+docker-compose up -d
+python3 basil-search/pipeline.py --url https://example.com --all 
+```
+`
 **Access Points:**
 - 🔍 **Search API**: `http://localhost:8000`
 - 📊 **API Documentation**: `http://localhost:8000/docs`
