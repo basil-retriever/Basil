@@ -35,7 +35,6 @@ curl -X POST http://localhost:3000/index?site=https://example.com
 ```bash
 git clone https://github.com/basil-retriever/Basil
 cd Basil
-docker-compose up -d
 python3 basil-search/pipeline.py --url https://example.com --all 
 ```
 `
