@@ -20,17 +20,44 @@ How does it work:
 
 ## 🚀 Quick Start
 
-### One-Command Deployment
+### 📦 Package Installation (Recommended)
+
+Install Basil as a Python package for easy updates and management:
+
+```bash
+git clone https://github.com/basil-retriever/Basil
+cd Basil
+./install.sh
+```
+
+Or manually:
+```bash
+git clone https://github.com/basil-retriever/Basil
+cd Basil
+pip install -e .
+```
+
+**Usage after installation:**
+```bash
+# Process a website
+basil-pipeline --url https://example.com --all
+
+# Start the server
+basil-server
+
+# Access API at http://localhost:8000
+```
+
+### 🐳 Docker Deployment
 
 ```bash
 git clone https://github.com/basil-retriever/Basil
 cd Basil
 docker-compose up -d
 curl -X POST http://localhost:3000/index?site=https://example.com
-
 ```
 
-#### No Docker user?
+### 🐍 Python Direct
 
 ```bash
 git clone https://github.com/basil-retriever/Basil

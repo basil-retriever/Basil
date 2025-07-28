@@ -11,7 +11,6 @@ Transform any website into a searchable knowledge base with AI-generated search 
 ```bash
 git clone <repository-url>
 cd basil-search
-
 cp .env.example .env
 # Add your GROQ_API_KEY to .env
 
