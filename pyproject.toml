@@ -37,7 +37,6 @@ dependencies = [
     "python-dotenv>=1.0.0",
     "pathlib2>=2.3.7",
 ]
-dynamic = ["version"]
 
 [project.optional-dependencies]
 dev = [
