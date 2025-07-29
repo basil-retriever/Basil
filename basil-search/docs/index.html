@@ -141,6 +141,8 @@
                 <li>Content cleaning and markdown conversion</li>
                 <li>Rate limiting and error handling</li>
                 <li>Domain-specific filtering</li>
+                <li><strong>Internal Site Support:</strong> Localhost, private networks, and development servers</li>
+                <li><strong>Authentication:</strong> Bearer tokens, custom headers, and basic auth</li>
             </ul>
         </div>
 
@@ -198,6 +200,9 @@ cp .env.example .env
 # One-click website indexing
 python pipeline.py --url https://example.com --all
 
+# Internal site indexing (localhost/development servers)
+python pipeline.py --url http://localhost:4200 --internal --all
+
 # API available at http://localhost:8000
         </div>
 
@@ -253,6 +258,42 @@ GET /search/query?q=website%20development&max_results=10
             <strong>/reload</strong> - Reload database with latest processed content
         </div>
 
+        <h3>🏠 Internal Site Indexing</h3>
+        
+        <div class="endpoint">
+            <span class="method get">GET</span>
+            <strong>/index</strong> - Index public website
+            <div class="code">
+GET /index?site=https://example.com
+            </div>
+        </div>
+
+        <div class="endpoint">
+            <span class="method post">POST</span>
+            <strong>/index-internal</strong> - Index internal/localhost sites
+            <div class="code">
+{
+  "site": "http://localhost:4200",
+  "max_pages": 25,
+  "auth_token": "Bearer your-dev-token",
+  "custom_headers": {
+    "X-API-Key": "dev-key-123",
+    "X-Environment": "development"
+  }
+}
+            </div>
+        </div>
+
+        <div class="feature">
+            <h4>📍 Supported Internal URLs:</h4>
+            <ul>
+                <li><strong>Localhost:</strong> http://localhost:4200 (Angular, React dev servers)</li>
+                <li><strong>Private IPs:</strong> http://192.168.1.100:8080 (Internal company services)</li>
+                <li><strong>Local Domains:</strong> http://app.local:3000 (Development environments)</li>
+                <li><strong>Containers:</strong> http://10.0.0.5:9000 (Docker/Kubernetes services)</li>
+            </ul>
+        </div>
+
         <h3>Response Format</h3>
         <div class="code">
 {
@@ -303,6 +344,9 @@ TARGET_URL=https://example.com docker-compose --profile scraping run scraper
             <tr><th>Variable</th><th>Description</th><th>Required</th></tr>
             <tr><td>GROQ_API_KEY</td><td>Groq API key for AI processing</td><td>Yes</td></tr>
             <tr><td>TARGET_URL</td><td>Website URL to scrape</td><td>For scraping</td></tr>
+            <tr><td>BASIL_AUTH_TOKEN</td><td>Bearer token for internal sites</td><td>No</td></tr>
+            <tr><td>BASIL_AUTH_HEADER</td><td>Custom authorization header</td><td>No</td></tr>
+            <tr><td>BASIL_CUSTOM_HEADERS</td><td>JSON object with custom headers</td><td>No</td></tr>
             <tr><td>API_HOST</td><td>Server host address</td><td>No</td></tr>
             <tr><td>API_PORT</td><td>Server port number</td><td>No</td></tr>
         </table>
@@ -348,8 +392,11 @@ python pipeline.py --check-config
 # Test API connection
 python pipeline.py --test-groq
 
-# Scrape website
+# Scrape public website
 python pipeline.py --url https://example.com --scrape
+
+# Scrape internal/localhost site
+python pipeline.py --url http://localhost:4200 --internal --scrape
 
 # Process content
 python pipeline.py --process
@@ -360,8 +407,11 @@ python pipeline.py --load
 # Start server
 python pipeline.py --serve
 
-# Complete pipeline
+# Complete pipeline (public)
 python pipeline.py --url https://example.com --all
+
+# Complete pipeline (internal)
+python pipeline.py --url http://localhost:4200 --internal --all
         </div>
     </section>
 

@@ -108,6 +108,8 @@ Basil Platform
 
 ### 🌐 **Intelligent Website Processing**
 - **Smart Scraping**: Extract content with automatic link discovery and rate limiting
+- **Internal Site Support**: Index localhost, development servers, and private networks
+- **Authentication**: Bearer tokens, custom headers, and basic auth support
 - **Content Enrichment**: AI-generated search patterns and metadata
 - **Multi-format Support**: Process HTML, markdown, and structured content
 
@@ -123,15 +125,50 @@ curl -X POST "http://localhost:8000/search" \
 ```
 ## 🚀 Usage Examples
 
-### Content Processing Pipeline
+### 🌍 **Public Website Processing**
 
 ```bash
-# 1. Scrape and process a website
-cd basil-search
-python pipeline.py --url https://example.com --all
+# Process external website
+basil-pipeline --url https://example.com --all
 
-# 2. Search the processed content
+# Search the processed content
 curl "http://localhost:8000/search/query?q=your%20search%20query"
+```
+
+### 🏠 **Internal/Localhost Processing**
+
+```bash
+# Index localhost development server
+basil-pipeline --url http://localhost:4200 --internal --all
+
+# Index private network service with authentication
+export BASIL_AUTH_TOKEN="your-bearer-token"
+basil-pipeline --url http://192.168.1.100:8080 --internal --all
+
+# Index with custom headers
+export BASIL_CUSTOM_HEADERS='{"X-API-Key":"dev-key","Authorization":"Custom token"}'
+basil-pipeline --url http://internal.company.local --internal --max-pages 50 --all
+```
+
+### 📡 **API Usage**
+
+```bash
+# Index public site
+curl -X GET "http://localhost:8000/index?site=https://example.com"
+
+# Index internal site with authentication
+curl -X POST "http://localhost:8000/index-internal" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "site": "http://localhost:4200",
+    "max_pages": 25,
+    "auth_token": "Bearer your-token",
+    "custom_headers": {
+      "X-API-Key": "dev-key-123"
+    }
+  }'
+```
+
 ---
 
 ## 🐳 Docker Configuration
@@ -179,6 +216,11 @@ cp basil-search/.env.example basil-search/.env
 
 # Edit with your settings
 GROQ_API_KEY=your_groq_api_key_here
+
+# Optional: For internal site authentication
+BASIL_AUTH_TOKEN=your_bearer_token
+BASIL_AUTH_HEADER="Basic dXNlcjpwYXNz"
+BASIL_CUSTOM_HEADERS='{"X-API-Key":"key","Custom-Header":"value"}'
 ```
 
 ### Service Configuration
@@ -186,6 +228,9 @@ GROQ_API_KEY=your_groq_api_key_here
 | Variable | Service | Description | Required |
 |----------|---------|-------------|----------|
 | `GROQ_API_KEY` | Search | AI processing API key | ✅ |
+| `BASIL_AUTH_TOKEN` | Internal Sites | Bearer token for authenticated sites | ❌ |
+| `BASIL_AUTH_HEADER` | Internal Sites | Custom authorization header | ❌ |
+| `BASIL_CUSTOM_HEADERS` | Internal Sites | JSON object with custom headers | ❌ |
 ---
 
 ## 📊 API Reference
@@ -199,6 +244,13 @@ GROQ_API_KEY=your_groq_api_key_here
 | `GET` | `/search/query` | Search with params | `?q=search&max_results=5` |
 | `GET` | `/health` | Health check | System status |
 | `GET` | `/stats` | Database statistics | Collection info |
+
+### Indexing Endpoints
+
+| Method | Endpoint | Description | Example |
+|--------|----------|-------------|---------|
+| `GET` | `/index` | Index public website | `?site=https://example.com` |
+| `POST` | `/index-internal` | Index internal/localhost sites | See examples below |
 
 ### Document Endpoints
 
@@ -223,6 +275,40 @@ GROQ_API_KEY=your_groq_api_key_here
   "total_results": 1
 }
 ```
+
+**Internal Site Indexing:**
+```bash
+# POST /index-internal
+curl -X POST "http://localhost:8000/index-internal" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "site": "http://localhost:4200",
+    "max_pages": 25,
+    "auth_token": "Bearer your-dev-token",
+    "custom_headers": {
+      "X-API-Key": "dev-key-123",
+      "X-Environment": "development"
+    }
+  }'
+
+# Response
+{
+  "message": "Internal site indexing started for http://localhost:4200",
+  "status": "accepted",
+  "site": "http://localhost:4200",
+  "max_pages": 25,
+  "type": "internal"
+}
+```
+
+### 🏠 **Internal Site Types Supported**
+
+| Type | Example | Use Case |
+|------|---------|----------|
+| **Localhost** | `http://localhost:4200` | Angular, React dev servers |
+| **Private IPs** | `http://192.168.1.100:8080` | Internal company services |
+| **Local Domains** | `http://app.local:3000` | Development environments |
+| **Containers** | `http://10.0.0.5:9000` | Docker/Kubernetes services |
 
 ---
 
