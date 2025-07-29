@@ -30,6 +30,7 @@ sys.path.insert(0, str(Path(__file__).parent / "src"))
 
 from src.config import Config
 from src.scrapers import scrape_website
+from src.scrapers.internal_scraper import scrape_internal_website
 from src.processors import process_scraped_content
 from src.database import setup_chromadb
 from src.utils import GroqClient
@@ -74,6 +75,27 @@ class WebsitePipeline:
             return results
         except Exception as e:
             logger.error(f"Scraping failed: {e}")
+            raise
+    
+    def scrape_internal_website(self, url: str, max_pages: int = 50) -> dict:
+        """
+        Scrape an internal website (localhost, private networks) with authentication support.
+        
+        Args:
+            url: Internal website URL to scrape
+            max_pages: Maximum number of pages to scrape
+            
+        Returns:
+            Dictionary with scraping results
+        """
+        logger.info(f"Starting internal website scraping: {url}")
+        
+        try:
+            results = scrape_internal_website(url, max_pages)
+            logger.info(f"Internal scraping completed: {results}")
+            return results
+        except Exception as e:
+            logger.error(f"Internal scraping failed: {e}")
             raise
     
     def process_content(self) -> dict:
@@ -138,7 +160,7 @@ class WebsitePipeline:
     
     def run_pipeline(self, url: Optional[str] = None, max_pages: int = 50, 
                     scrape: bool = False, process: bool = False, 
-                    load: bool = False, serve: bool = False):
+                    load: bool = False, serve: bool = False, internal: bool = False):
         """
         Run the complete pipeline or specified steps.
         
@@ -149,6 +171,7 @@ class WebsitePipeline:
             process: Whether to process content
             load: Whether to load into database
             serve: Whether to start the server
+            internal: Whether to use internal scraper (for localhost/private networks)
         """
         results = {}
         
@@ -156,7 +179,12 @@ class WebsitePipeline:
         if scrape:
             if not url:
                 raise ValueError("URL is required for scraping")
-            results['scraping'] = self.scrape_website(url, max_pages)
+            
+            if internal:
+                logger.info("Using internal scraper for localhost/private network")
+                results['scraping'] = self.scrape_internal_website(url, max_pages)
+            else:
+                results['scraping'] = self.scrape_website(url, max_pages)
         
         # Step 2: Process content
         if process:
@@ -209,6 +237,12 @@ Examples:
         type=int,
         default=50,
         help="Maximum number of pages to scrape (default: 50)"
+    )
+    
+    parser.add_argument(
+        "--internal",
+        action="store_true",
+        help="Internal site mode (allows localhost, private IPs, custom auth)"
     )
     
     # Pipeline steps
@@ -320,7 +354,8 @@ Examples:
             scrape=args.scrape,
             process=args.process,
             load=args.load,
-            serve=args.serve
+            serve=args.serve,
+            internal=args.internal
         )
         
         # Print results if not serving
