@@ -1,10 +1,14 @@
 from fastapi import APIRouter
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
-import spacy
 import re
 import chromadb
 from sentence_transformers import SentenceTransformer
+
+try:
+    import spacy
+except ImportError:
+    spacy = None
 
 router = APIRouter()
 
@@ -12,8 +16,8 @@ class TextInput(BaseModel):
     text: str
 
 try:
-    nlp = spacy.load("en_core_web_sm")
-except OSError:
+    nlp = spacy.load("en_core_web_sm") if spacy else None
+except (OSError, AttributeError):
     nlp = None
 
 try:
