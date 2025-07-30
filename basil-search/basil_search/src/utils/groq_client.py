@@ -2,7 +2,7 @@ import requests
 import json
 from typing import Optional, Dict, Any
 import logging
-from ..config import Config
+from basil_search.src.config import Config
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)

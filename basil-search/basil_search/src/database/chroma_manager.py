@@ -3,7 +3,7 @@ from chromadb.config import Settings
 from pathlib import Path
 from typing import List, Dict, Any, Optional
 import logging
-from ..config import Config
+from basil_search.src.config import Config
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)

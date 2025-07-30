@@ -5,7 +5,7 @@ import os
 
 load_dotenv()
 
-from routers import ask, detect_intent, site_scanner
+from basil_search.routers import ask, detect_intent, site_scanner
 
 app = FastAPI(title="BasilApi", version="1.0")
 

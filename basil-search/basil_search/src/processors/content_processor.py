@@ -4,8 +4,8 @@ import time
 from pathlib import Path
 from typing import Dict, List, Optional, Any
 import logging
-from ..config import Config
-from ..utils.groq_client import GroqClient
+from basil_search.src.config import Config
+from basil_search.src.utils.groq_client import GroqClient
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)

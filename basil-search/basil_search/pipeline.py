@@ -25,15 +25,12 @@ from pathlib import Path
 import logging
 from typing import Optional
 
-# Add src to path for imports
-sys.path.insert(0, str(Path(__file__).parent / "src"))
-
-from src.config import Config
-from src.scrapers import scrape_website
-from src.scrapers.internal_scraper import scrape_internal_website
-from src.processors import process_scraped_content
-from src.database import setup_chromadb
-from src.utils import GroqClient
+from basil_search.src.config import Config
+from basil_search.src.scrapers import scrape_website
+from basil_search.src.scrapers.internal_scraper import scrape_internal_website
+from basil_search.src.processors import process_scraped_content
+from basil_search.src.database import setup_chromadb
+from basil_search.src.utils import GroqClient
 
 # Configure logging
 logging.basicConfig(

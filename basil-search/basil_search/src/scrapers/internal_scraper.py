@@ -5,7 +5,7 @@ from typing import Optional, Dict, Any
 import logging
 from urllib.parse import urlparse
 from .website_scraper import WebsiteScraper
-from ..config import Config
+from basil_search.src.config import Config
 import asyncio
 from playwright.async_api import async_playwright
 
