@@ -6,6 +6,8 @@ import logging
 from urllib.parse import urlparse
 from .website_scraper import WebsiteScraper
 from ..config import Config
+import asyncio
+from playwright.async_api import async_playwright
 
 logger = logging.getLogger(__name__)
 
@@ -21,8 +23,11 @@ class InternalWebsiteScraper(WebsiteScraper):
     - Relaxed SSL verification for development
     """
     
-    def __init__(self, base_url: str, output_dir=None, max_pages: int = 50, **kwargs):
+    def __init__(self, base_url: str, output_dir=None, max_pages: int = 50, use_browser: bool = None, **kwargs):
         super().__init__(base_url, output_dir, max_pages)
+        
+        # Determine if we should use browser automation
+        self.use_browser = use_browser if use_browser is not None else self._should_use_browser()
         
         # Setup authentication from environment variables
         self.session = requests.Session()
@@ -58,6 +63,23 @@ class InternalWebsiteScraper(WebsiteScraper):
             except json.JSONDecodeError:
                 logger.warning("Invalid JSON in BASIL_CUSTOM_HEADERS, ignoring")
     
+    def _should_use_browser(self) -> bool:
+        """Determine if browser automation should be used based on URL patterns"""
+        parsed_url = urlparse(self.base_url)
+        
+        # Use browser for common development server ports (Angular, React, Vue, etc.)
+        dev_ports = [3000, 4200, 5173, 8080, 8081, 9000]
+        if parsed_url.port in dev_ports:
+            logger.info(f"Detected development server on port {parsed_url.port}, using browser automation")
+            return True
+        
+        # Use browser for localhost by default (can be overridden)
+        if parsed_url.hostname in ['localhost', '127.0.0.1']:
+            logger.info("Detected localhost, using browser automation for JavaScript content")
+            return True
+            
+        return False
+    
     def _setup_internal_config(self):
         """Setup configuration for internal sites"""
         
@@ -81,7 +103,16 @@ class InternalWebsiteScraper(WebsiteScraper):
     
     def scrape_page(self, url: str) -> bool:
         """
-        Enhanced page scraping with authentication support
+        Enhanced page scraping with authentication support and browser automation
+        """
+        if self.use_browser:
+            return asyncio.run(self._scrape_page_with_browser(url))
+        else:
+            return self._scrape_page_with_requests(url)
+    
+    def _scrape_page_with_requests(self, url: str) -> bool:
+        """
+        Traditional scraping using requests
         """
         try:
             # Use the configured session instead of direct requests
@@ -95,7 +126,7 @@ class InternalWebsiteScraper(WebsiteScraper):
             with open(filepath, 'w', encoding='utf-8') as f:
                 f.write(markdown_content)
             
-            logger.info(f"Scraped internal: {url} -> {filepath}")
+            logger.info(f"Scraped internal (requests): {url} -> {filepath}")
             return True
             
         except requests.exceptions.RequestException as e:
@@ -105,9 +136,83 @@ class InternalWebsiteScraper(WebsiteScraper):
             logger.error(f"Unexpected error scraping internal site {url}: {e}")
             return False
     
+    async def _scrape_page_with_browser(self, url: str) -> bool:
+        """
+        Browser-based scraping for JavaScript-heavy sites
+        """
+        try:
+            async with async_playwright() as p:
+                # Launch browser with options for internal sites
+                browser = await p.chromium.launch(
+                    headless=True,
+                    args=['--no-sandbox', '--disable-dev-shm-usage', '--ignore-certificate-errors']
+                )
+                
+                context = await browser.new_context(
+                    ignore_https_errors=True,
+                    user_agent='Basil-Internal-Scraper/1.0'
+                )
+                
+                # Add authentication headers if available
+                headers = {}
+                auth_token = os.getenv('BASIL_AUTH_TOKEN')
+                if auth_token:
+                    headers['Authorization'] = f'Bearer {auth_token}'
+                
+                auth_header = os.getenv('BASIL_AUTH_HEADER')
+                if auth_header:
+                    headers['Authorization'] = auth_header
+                
+                custom_headers = os.getenv('BASIL_CUSTOM_HEADERS')
+                if custom_headers:
+                    try:
+                        headers.update(json.loads(custom_headers))
+                    except json.JSONDecodeError:
+                        pass
+                
+                if headers:
+                    await context.set_extra_http_headers(headers)
+                
+                page = await context.new_page()
+                
+                # Navigate and wait for content to load
+                await page.goto(url, wait_until='networkidle', timeout=30000)
+                
+                # Wait a bit more for any dynamic content
+                await page.wait_for_timeout(2000)
+                
+                # Get the fully rendered HTML
+                html_content = await page.content()
+                
+                await browser.close()
+                
+                # Convert to markdown
+                markdown_content = self.html_to_markdown(html_content, url)
+                
+                filename = self._generate_filename(url)
+                filepath = self.output_dir / f"{filename}.md"
+                with open(filepath, 'w', encoding='utf-8') as f:
+                    f.write(markdown_content)
+                
+                logger.info(f"Scraped internal (browser): {url} -> {filepath}")
+                return True
+                
+        except Exception as e:
+            logger.error(f"Failed to scrape internal site with browser {url}: {e}")
+            return False
+    
     def discover_links(self, url: str) -> list:
         """
-        Enhanced link discovery with authentication
+        Enhanced link discovery with authentication and browser support
+        """
+        if self.use_browser:
+            return asyncio.run(self._discover_links_with_browser(url))
+        else:
+            return self._discover_links_with_requests(url)
+    
+    def _discover_links_with_requests(self, url: str) -> list:
+        """
+        Traditional link discovery using requests
         """
         discovered_urls = []
         
@@ -140,6 +245,76 @@ class InternalWebsiteScraper(WebsiteScraper):
             
         except requests.exceptions.RequestException as e:
             logger.error(f"Failed to discover links from internal site {url}: {e}")
+            return []
+    
+    async def _discover_links_with_browser(self, url: str) -> list:
+        """
+        Browser-based link discovery for JavaScript-rendered navigation
+        """
+        discovered_urls = []
+        
+        try:
+            async with async_playwright() as p:
+                browser = await p.chromium.launch(
+                    headless=True,
+                    args=['--no-sandbox', '--disable-dev-shm-usage', '--ignore-certificate-errors']
+                )
+                
+                context = await browser.new_context(
+                    ignore_https_errors=True,
+                    user_agent='Basil-Internal-Scraper/1.0'
+                )
+                
+                # Add authentication headers if available
+                headers = {}
+                auth_token = os.getenv('BASIL_AUTH_TOKEN')
+                if auth_token:
+                    headers['Authorization'] = f'Bearer {auth_token}'
+                
+                auth_header = os.getenv('BASIL_AUTH_HEADER')
+                if auth_header:
+                    headers['Authorization'] = auth_header
+                
+                custom_headers = os.getenv('BASIL_CUSTOM_HEADERS')
+                if custom_headers:
+                    try:
+                        headers.update(json.loads(custom_headers))
+                    except json.JSONDecodeError:
+                        pass
+                
+                if headers:
+                    await context.set_extra_http_headers(headers)
+                
+                page = await context.new_page()
+                await page.goto(url, wait_until='networkidle', timeout=30000)
+                await page.wait_for_timeout(2000)
+                
+                # Get all links after JavaScript execution
+                links = await page.query_selector_all('a[href]')
+                
+                for link in links:
+                    href = await link.get_attribute('href')
+                    if href:
+                        # Handle relative URLs
+                        from urllib.parse import urljoin
+                        full_url = urljoin(url, href)
+                        parsed_url = urlparse(full_url)
+                        
+                        # More flexible domain matching for internal sites
+                        if (self._is_same_internal_site(parsed_url) and 
+                            full_url.startswith(('http://', 'https://')) and
+                            full_url not in self.visited_urls):
+                            
+                            clean_url = full_url.split('#')[0].split('?')[0].rstrip('/')
+                            
+                            if clean_url not in self.visited_urls and clean_url not in discovered_urls:
+                                discovered_urls.append(clean_url)
+                
+                await browser.close()
+                return discovered_urls
+                
+        except Exception as e:
+            logger.error(f"Failed to discover links with browser from {url}: {e}")
             return []
     
     def _is_same_internal_site(self, parsed_url) -> bool:
