@@ -12,7 +12,7 @@ def run_server():
     cwd = os.getcwd()
     
     # Add the basil-search directory to Python path for imports
-    basil_search_path = Path(__file__).parent / "basil-search"
+    basil_search_path = Path(__file__).parent
     sys.path.insert(0, str(basil_search_path))
     
     # Change to CWD so .env and data directories are found
@@ -51,7 +51,7 @@ def run_pipeline():
     cwd = os.getcwd()
     
     # Add the basil-search directory to Python path for imports
-    basil_search_path = Path(__file__).parent / "basil-search"
+    basil_search_path = Path(__file__).parent
     sys.path.insert(0, str(basil_search_path))
     
     # Change to CWD so .env and data directories are found
