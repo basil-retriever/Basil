@@ -58,8 +58,8 @@ legacy = [
 ]
 
 [project.scripts]
-basil-server = "basil_search_cli:run_server"
-basil-pipeline = "basil_search_cli:run_pipeline"
+basil-server = "basil_search:run_server"
+basil-pipeline = "basil_search:run_pipeline"
 
 [project.urls]
 Homepage = "https://github.com/basil-retriever/Basil"
