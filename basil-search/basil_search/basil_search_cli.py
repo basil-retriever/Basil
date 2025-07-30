@@ -29,12 +29,8 @@ def run_server():
         else:
             load_dotenv()  # Try default locations
         
-        # Import app after setting up paths
-        os.chdir(str(basil_search_path))
-        from app import app as fastapi_app
-        
-        # Change back to original directory
-        os.chdir(original_cwd)
+        # Import app after setting up paths  
+        from basil_search.app import app as fastapi_app
         
         uvicorn.run(
             fastapi_app,
@@ -58,13 +54,7 @@ def run_pipeline():
     original_cwd = os.getcwd()
     
     try:
-        # Change to basil-search for imports
-        os.chdir(str(basil_search_path))
-        from pipeline import main
-        
-        # Change back to working directory for execution
-        os.chdir(original_cwd)
-        
+        from basil_search.pipeline import main
         main()
     finally:
         os.chdir(original_cwd)
