@@ -1,0 +1,205 @@
+#!/bin/bash
+
+# Basil CLI - Project command to manage Basil server
+# Usage: ./basil [command] [options]
+
+set -e
+
+# Colors for output
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+NC='\033[0m' # No Color
+
+# Function to print colored output
+print_info() {
+    echo -e "${BLUE}ℹ ${NC}$1"
+}
+
+print_success() {
+    echo -e "${GREEN}✅ ${NC}$1"
+}
+
+print_warning() {
+    echo -e "${YELLOW}⚠️  ${NC}$1"
+}
+
+print_error() {
+    echo -e "${RED}❌ ${NC}$1"
+}
+
+# Get the directory where this script is located
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$SCRIPT_DIR"
+
+# Function to check if we can run basil commands
+check_basil_installation() {
+    if [ ! -f "$PROJECT_ROOT/pyproject.toml" ]; then
+        print_error "Not in Basil project root (pyproject.toml not found)"
+        return 1
+    fi
+    
+    # Check if we're in development mode or need to install
+    if ! python3 -c "import basil_search" 2>/dev/null; then
+        print_warning "Basil not installed in current environment"
+        print_info "Installing Basil in development mode..."
+        python3 -m pip install -e .
+    fi
+    
+    # Initialize ChromaDB collections if needed
+    if [ ! -d "./chroma_db" ] || ! python3 -c "
+import chromadb
+try:
+    client = chromadb.PersistentClient(path='./chroma_db')
+    client.get_collection('ticket_intent_collection')
+    client.get_collection('website_content')
+except:
+    exit(1)
+" 2>/dev/null; then
+        print_info "Initializing ChromaDB collections..."
+        python3 init_collections.py
+    fi
+    
+    return 0
+}
+
+# Function to start the server
+start_server() {
+    cd "$PROJECT_ROOT"
+    
+    if ! check_basil_installation; then
+        return 1
+    fi
+    
+    print_info "Starting Basil server from $PROJECT_ROOT..."
+    
+    # Try to find basil-server in common locations
+    if command -v basil-server >/dev/null 2>&1; then
+        exec basil-server
+    elif [ -f "/Users/nielsjacobs/Library/Python/3.9/bin/basil-server" ]; then
+        exec /Users/nielsjacobs/Library/Python/3.9/bin/basil-server
+    else
+        # Fallback: run directly with python
+        exec python3 -m basil_search.basil_search_cli server
+    fi
+}
+
+# Function to run pipeline
+run_pipeline() {
+    cd "$PROJECT_ROOT"
+    
+    if ! check_basil_installation; then
+        return 1
+    fi
+    
+    print_info "Running Basil pipeline..."
+    
+    # Try to find basil-pipeline in common locations
+    if command -v basil-pipeline >/dev/null 2>&1; then
+        exec basil-pipeline "$@"
+    elif [ -f "/Users/nielsjacobs/Library/Python/3.9/bin/basil-pipeline" ]; then
+        exec /Users/nielsjacobs/Library/Python/3.9/bin/basil-pipeline "$@"
+    else
+        # Fallback: run directly with python
+        exec python3 -m basil_search.basil_search_cli pipeline "$@"
+    fi
+}
+
+# Function to check status
+status() {
+    cd "$PROJECT_ROOT"
+    
+    print_success "Basil project root: $PROJECT_ROOT"
+    
+    if python3 -c "import basil_search" 2>/dev/null; then
+        print_success "Basil is installed and importable"
+        
+        # Check if server is running
+        if curl -s http://localhost:8000/docs > /dev/null 2>&1; then
+            print_success "Basil server is running at http://localhost:8000"
+        else
+            print_info "Basil server is not running"
+        fi
+        
+        # Show basil version
+        local version
+        if version=$(python3 -c "import basil_search; print(getattr(basil_search, '__version__', 'unknown'))" 2>/dev/null); then
+            print_info "Basil version: $version"
+        fi
+    else
+        print_warning "Basil is not installed in current environment"
+        print_info "Run: python3 -m pip install -e ."
+    fi
+}
+
+# Function to install/reinstall basil
+install() {
+    cd "$PROJECT_ROOT"
+    print_info "Installing Basil in development mode..."
+    python3 -m pip install -e .
+    print_success "Basil installed successfully"
+}
+
+# Function to build package
+build() {
+    cd "$PROJECT_ROOT"
+    print_info "Building Basil package..."
+    python3 -m build
+    print_success "Package built successfully"
+}
+
+# Function to show help
+show_help() {
+    cat << EOF
+Basil CLI - AI-Powered Website Search Engine
+
+Usage: ./basil [command] [options]
+
+Commands:
+    server, start       Start the Basil server
+    pipeline [args]     Run the Basil pipeline with arguments
+    status             Show project and server status
+    install            Install Basil in development mode
+    build              Build the package
+    help, -h, --help   Show this help message
+
+Examples:
+    ./basil server                         # Start the server
+    ./basil pipeline --url https://example.com --all  # Index a website
+    ./basil status                         # Check status
+    ./basil install                        # Install in development mode
+    ./basil build                          # Build package
+
+This CLI works from the Basil project root directory.
+EOF
+}
+
+# Main command handling
+case "${1:-}" in
+    "server"|"start")
+        start_server
+        ;;
+    "pipeline")
+        shift
+        run_pipeline "$@"
+        ;;
+    "status")
+        status
+        ;;
+    "install")
+        install
+        ;;
+    "build")
+        build
+        ;;
+    "help"|"-h"|"--help"|"")
+        show_help
+        ;;
+    *)
+        print_error "Unknown command: $1"
+        echo
+        show_help
+        exit 1
+        ;;
+esac

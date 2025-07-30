@@ -1,6 +1,6 @@
 Metadata-Version: 2.4
 Name: basil-search
-Version: 1.0.0.post0+dirty
+Version: 0.1.0
 Summary: AI-Powered Website Search Engine with ChromaDB and Groq
 Author-email: Basil Team <team@basil-retriever.com>
 License: MIT
