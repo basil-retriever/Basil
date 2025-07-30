@@ -2,7 +2,16 @@
 Basil - AI-Powered Website Search Engine
 """
 
-__version__ = "1.0.0"
+try:
+    from ._version import version as __version__
+except ImportError:
+    # Fallback for development installations
+    try:
+        from importlib.metadata import version
+        __version__ = version("basil-search")
+    except ImportError:
+        __version__ = "unknown"
+
 __author__ = "Basil Team"
 __email__ = "team@basil-retriever.com"
 __description__ = "AI-Powered Website Search Engine with ChromaDB and Groq"

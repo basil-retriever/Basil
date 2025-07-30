@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 class Config:
-    PROJECT_ROOT = Path(__file__).parent.parent
+    PROJECT_ROOT = Path(os.getcwd())  # Use current working directory instead of package directory
     DATA_DIR = PROJECT_ROOT / "data"
     SCRAPED_PAGES_DIR = DATA_DIR / "scraped_pages"
     PROCESSED_DIR = DATA_DIR / "processed"

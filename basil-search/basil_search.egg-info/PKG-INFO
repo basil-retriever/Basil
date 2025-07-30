@@ -1,3 +1,51 @@
+Metadata-Version: 2.4
+Name: basil-search
+Version: 1.0.0.post0+dirty
+Summary: AI-Powered Website Search Engine with ChromaDB and Groq
+Author-email: Basil Team <team@basil-retriever.com>
+License: MIT
+Project-URL: Homepage, https://github.com/basil-retriever/Basil
+Project-URL: Documentation, https://github.com/basil-retriever/Basil#readme
+Project-URL: Repository, https://github.com/basil-retriever/Basil
+Project-URL: Bug Tracker, https://github.com/basil-retriever/Basil/issues
+Classifier: Development Status :: 4 - Beta
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Topic :: Internet :: WWW/HTTP :: Indexing/Search
+Classifier: Topic :: Scientific/Engineering :: Artificial Intelligence
+Requires-Python: >=3.8
+Description-Content-Type: text/markdown
+Requires-Dist: requests>=2.31.0
+Requires-Dist: beautifulsoup4>=4.12.2
+Requires-Dist: markdownify>=0.11.6
+Requires-Dist: lxml>=4.9.3
+Requires-Dist: playwright>=1.40.0
+Requires-Dist: sentence-transformers>=2.2.2
+Requires-Dist: chromadb>=0.4.15
+Requires-Dist: fastapi>=0.104.1
+Requires-Dist: uvicorn>=0.24.0
+Requires-Dist: python-dotenv>=1.0.0
+Requires-Dist: pathlib2>=2.3.7
+Provides-Extra: dev
+Requires-Dist: pytest>=7.4.3; extra == "dev"
+Requires-Dist: pytest-asyncio>=0.21.1; extra == "dev"
+Requires-Dist: black>=23.10.1; extra == "dev"
+Requires-Dist: flake8>=6.1.0; extra == "dev"
+Provides-Extra: docs
+Requires-Dist: sphinx>=7.2.6; extra == "docs"
+Requires-Dist: sphinx-rtd-theme>=1.3.0; extra == "docs"
+Provides-Extra: legacy
+Requires-Dist: flask; extra == "legacy"
+Requires-Dist: fpdf2; extra == "legacy"
+Requires-Dist: markdown; extra == "legacy"
+Requires-Dist: spacy; extra == "legacy"
+
 # 🌿 Basil
 
 **Extremely easy AI-Powered search**

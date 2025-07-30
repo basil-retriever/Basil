@@ -1,0 +1,3 @@
+[console_scripts]
+basil-pipeline = pipeline:main
+basil-server = app:run_server

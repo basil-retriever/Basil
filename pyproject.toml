@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "basil-search"
-version = "1.0.0"
+dynamic = ["version"]
 description = "AI-Powered Website Search Engine with ChromaDB and Groq"
 readme = "README.md"
 license = {text = "MIT"}
@@ -30,6 +30,7 @@ dependencies = [
     "beautifulsoup4>=4.12.2",
     "markdownify>=0.11.6",
     "lxml>=4.9.3",
+    "playwright>=1.40.0",
     "sentence-transformers>=2.2.2",
     "chromadb>=0.4.15",
     "fastapi>=0.104.1",
@@ -57,9 +58,8 @@ legacy = [
 ]
 
 [project.scripts]
-basil = "app:main"
-basil-pipeline = "pipeline:main"
-basil-server = "app:run_server"
+basil-server = "basil_search_cli:run_server"
+basil-pipeline = "basil_search_cli:run_pipeline"
 
 [project.urls]
 Homepage = "https://github.com/basil-retriever/Basil"
@@ -92,3 +92,8 @@ addopts = "-v --tb=short"
 max-line-length = 88
 extend-ignore = ["E203", "W503"]
 exclude = [".git", "__pycache__", "build", "dist"]
+
+[tool.setuptools_scm]
+write_to = "basil-search/_version.py"
+version_scheme = "post-release"
+local_scheme = "dirty-tag"
