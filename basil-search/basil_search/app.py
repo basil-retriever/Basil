@@ -1,15 +1,36 @@
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
 import uvicorn
 import os
 
 load_dotenv()
 
-from basil_search.routers import ask, detect_intent, site_scanner
+from basil_search.routers import ask, site_scanner
 
 app = FastAPI(title="BasilApi", version="1.0")
 
-app.include_router(detect_intent.router)
+# CORS Configuration
+def get_allowed_origins():
+    """Parse ALLOWED_ORIGINS from environment variable"""
+    origins_env = os.getenv("ALLOWED_ORIGINS", "*")
+    
+    if origins_env == "*":
+        return ["*"]
+    else:
+        # Split by comma and strip whitespace
+        return [origin.strip() for origin in origins_env.split(",") if origin.strip()]
+
+allowed_origins = get_allowed_origins()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=allowed_origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 app.include_router(ask.router)
 app.include_router(site_scanner.router)
 

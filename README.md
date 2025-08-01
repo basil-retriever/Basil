@@ -29,8 +29,9 @@ pip install git+https://github.com/basil-retriever/Basil.git
 # Install specific version
 pip install git+https://github.com/basil-retriever/Basil.git@v0.1.0
 
-# Create .env file with your Groq API key
+# Create .env file with your Groq API key and CORS origins
 echo "GROQ_API_KEY=your_groq_api_key_here" > .env
+echo "ALLOWED_ORIGINS=*" >> .env
 
 # Process a public website
 python -m basil_search.pipeline --url https://example.com --process
