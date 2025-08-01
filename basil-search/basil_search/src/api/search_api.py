@@ -3,6 +3,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import List, Dict, Any, Optional
 import logging
+import os
+import requests
 from basil_search.src.database import ChromaManager
 from basil_search.src.config import Config
 
@@ -41,6 +43,16 @@ class SearchResponse(BaseModel):
     total_results: int
     processing_time: Optional[float] = None
 
+class AskRequest(BaseModel):
+    question: str
+    max_context_results: Optional[int] = 5
+
+class AskResponse(BaseModel):
+    question: str
+    answer: str
+    context_sources: List[SearchResult]
+    processing_time: Optional[float] = None
+
 @app.get("/")
 async def root():
     return {
@@ -49,6 +61,7 @@ async def root():
         "endpoints": {
             "/search": "POST - Semantic search",
             "/search/query": "GET - Search with query parameter",
+            "/ask": "POST - RAG-powered question answering",
             "/health": "GET - Health check",
             "/stats": "GET - Collection statistics"
         }
@@ -98,6 +111,90 @@ async def search_query(
 ):
     request = SearchRequest(query=q, max_results=max_results)
     return await search(request)
+
+@app.post("/ask", response_model=AskResponse)
+async def ask_question(request: AskRequest):
+    try:
+        import time
+        start_time = time.time()
+        
+        if not request.question.strip():
+            raise HTTPException(status_code=400, detail="Question cannot be empty")
+        
+        # Get GROQ API key
+        GROQ_API_KEY = Config.GROQ_API_KEY
+        if not GROQ_API_KEY:
+            raise HTTPException(status_code=500, detail="GROQ_API_KEY not configured")
+        
+        # First, perform semantic search to get relevant context
+        search_results = chroma_manager.search(
+            query=request.question,
+            n_results=request.max_context_results
+        )
+        
+        # Build context from search results
+        context_texts = []
+        context_sources = []
+        
+        for result in search_results['results']:
+            context_texts.append(f"Source: {result['metadata'].get('title', 'Unknown')}\n{result['document']}")
+            context_sources.append(SearchResult(
+                document=result['document'],
+                metadata=result['metadata'],
+                similarity=result['similarity'],
+                distance=result['distance']
+            ))
+        
+        # Create RAG prompt
+        context = "\n\n---\n\n".join(context_texts)
+        rag_prompt = f"""Based on the following context from the website, answer the user's question. If the context doesn't contain enough information to answer the question, say so clearly.
+
+Context:
+{context}
+
+Question: {request.question}
+
+Answer:"""
+        
+        # Call Groq API
+        headers = {
+            "Authorization": f"Bearer {GROQ_API_KEY}",
+            "Content-Type": "application/json"
+        }
+        payload = {
+            "model": Config.GROQ_MODEL,
+            "messages": [{"role": "user", "content": rag_prompt}],
+            "max_tokens": 1000
+        }
+        
+        response = requests.post(
+            Config.GROQ_API_URL,
+            headers=headers,
+            json=payload,
+            timeout=30
+        )
+        
+        if response.status_code != 200:
+            raise HTTPException(status_code=500, detail=f"Groq API error: {response.status_code}")
+        
+        result = response.json()
+        answer = result["choices"][0]["message"]["content"]
+        
+        processing_time = time.time() - start_time
+        
+        return AskResponse(
+            question=request.question,
+            answer=answer,
+            context_sources=context_sources,
+            processing_time=processing_time
+        )
+        
+    except requests.exceptions.RequestException as e:
+        logger.error(f"Groq API request error: {e}")
+        raise HTTPException(status_code=500, detail=f"AI service unavailable: {str(e)}")
+    except Exception as e:
+        logger.error(f"Ask error: {e}")
+        raise HTTPException(status_code=500, detail=f"Ask failed: {str(e)}")
 
 @app.get("/health")
 async def health_check():
