@@ -1,6 +1,6 @@
 Metadata-Version: 2.4
 Name: basil-search
-Version: 0.1.0
+Version: 0.1.0.post1+dirty
 Summary: AI-Powered Website Search Engine with ChromaDB and Groq
 Author-email: Basil Team <team@basil-retriever.com>
 License: MIT
@@ -48,195 +48,151 @@ Requires-Dist: spacy; extra == "legacy"
 
 # 🌿 Basil
 
-**Extremely easy AI-Powered search**
+**AI-Powered Website Search Engine**
 
-With just 1 command, Basil fetches your website data and creates a powerfull RAG search engine to use in your site.
-
-Example: Imagine you have a website with 1000 pages, and you want to create a search engine that can answer questions like "What is the price of your services?" or "How can I contact support?". Basil will scrape your website, process the content using AI, and create a search engine that can answer these questions in seconds.
-
-
-How does it work: 
-1. **Scrape**: Basil scrapes your website and extracts the content.
-2. **Process**: It processes the content using AI to create a searchable index, then places your example sentences in a chromaDb
-3. **Search**: You can you use the build in endpoint `/search` to integrate in your website.
+Transform any website into a powerful, searchable knowledge base with just one command. Basil scrapes, processes, and creates intelligent search endpoints for your content.
 
 [![Docker](https://img.shields.io/badge/Docker-Ready-blue?logo=docker)](./docker-compose.yml)
 [![FastAPI](https://img.shields.io/badge/FastAPI-Framework-green?logo=fastapi)](./basil-search/)
-[![AI Powered](https://img.shields.io/badge/AI-Powered%20by%20Groq-orange)](./basil-search/src/utils/groq_client.py)
+[![AI Powered](https://img.shields.io/badge/AI-Powered%20by%20Groq-orange)]()
 
 ---
 
-## 🚀 Quick Start
+## 🚀 Getting Started
 
-### 📦 Package Installation (Recommended - npm-like experience)
+### Prerequisites
 
-#### Install from Git (like npm install from GitHub)
+Create a `.env` file with your Groq API key:
 ```bash
-# Install directly from GitHub (latest stable)
+GROQ_API_KEY=your_groq_api_key_here
+```
+
+### 📦 Installation Options
+
+#### Option 1: Pip Install (Recommended)
+```bash
+# Install latest version
 pip install git+https://github.com/basil-retriever/Basil.git
 
-# Install specific version (like npm install package@version)
-pip install git+https://github.com/basil-retriever/Basil.git@v1.0.0
+# Install specific version
+pip install git+https://github.com/basil-retriever/Basil.git@v0.1.0
 
-# For development (editable install)
-git clone https://github.com/basil-retriever/Basil
-cd Basil
-pip install -e .
-```
+# Create .env file with your Groq API key
+echo "GROQ_API_KEY=your_groq_api_key_here" > .env
 
-#### Update to Latest Version (like npm update)
-```bash
-# Update to latest version
-pip install --upgrade git+https://github.com/basil-retriever/Basil.git
-
-# Or if you have it in requirements.txt, just run:
-pip install --upgrade -r requirements.txt
-```
-
-#### Add to requirements.txt (like package.json)
-```txt
-# In your requirements.txt
-basil-search @ git+https://github.com/basil-retriever/Basil.git
-# Or for a specific version:
-basil-search @ git+https://github.com/basil-retriever/Basil.git@v1.0.0
-```
-
-#### Version Management (Semantic Versioning)
-Basil uses semantic versioning (semver) like npm packages:
-- **Major versions** (v2.0.0): Breaking changes
-- **Minor versions** (v1.1.0): New features, backward compatible  
-- **Patch versions** (v1.0.1): Bug fixes, backward compatible
-
-To see available versions:
-```bash
-git ls-remote --tags https://github.com/basil-retriever/Basil.git
-```
-
-**Usage after installation:**
-```bash
 # Process a website
 basil-pipeline --url https://example.com --all
 
 # Start the server
 basil-server
-
-# Access API at http://localhost:8000
 ```
 
-### 🐳 Docker Deployment
-
+#### Option 2: Docker
 ```bash
 git clone https://github.com/basil-retriever/Basil
 cd Basil
+
+# Add your Groq API key to .env file
+echo "GROQ_API_KEY=your_groq_api_key_here" > basil-search/.env
+
+# Start with Docker
 docker-compose up -d
-curl -X POST http://localhost:3000/index?site=https://example.com
+
+# Process a website
+curl -X GET "http://localhost:8000/index?site=https://example.com"
 ```
 
-### 🐍 Python Direct
-
+#### Option 3: Plain Python
 ```bash
 git clone https://github.com/basil-retriever/Basil
 cd Basil
-python3 basil-search/pipeline.py --url https://example.com --all 
-```
-`
-**Access Points:**
-- 🔍 **Search API**: `http://localhost:8000`
-- 📊 **API Documentation**: `http://localhost:8000/docs`
 
-### Local Development
+# Install dependencies
+pip install -r basil-search/requirements.txt
 
-```bash
+# Add your Groq API key
+echo "GROQ_API_KEY=your_groq_api_key_here" > basil-search/.env
+
+# Process a website
 cd basil-search
-cp .env.example .env
-# Add your GROQ_API_KEY to .env
-docker-compose up --build
+python pipeline.py --url https://example.com --all
+
+# Start the server
+python -m uvicorn app:app --host 0.0.0.0 --port 8000
 ```
 
 ---
 
-## 🏗️ Architecture
+## 📡 API Endpoints
 
-```
-Basil Platform
-├── 🔍 Search Engine (Port 8000)
-│   ├── FastAPI REST Endpoints
-│   ├── ChromaDB Vector Database
-│   ├── Groq AI Processing
-│   └── Content Management
-│
-└── 🎫 Document Services
-    ├── Intent Detection
-    └── Customer Request Processing
-```
+### Search Endpoints
 
-### Core Components
+#### `POST /ask`
+Ask questions about indexed content.
 
-| Component | Description | Port | Technology |
-|-----------|-------------|------|------------|
-| **Basil Search** | AI-powered search and content processing | 8000 | FastAPI, ChromaDB, Groq |
-| **Vector Database** | Semantic search and content storage | - | ChromaDB, SQLite |
-
----
-
-## 🔧 Key Features
-
-### 🌐 **Intelligent Website Processing**
-- **Smart Scraping**: Extract content with automatic link discovery and rate limiting
-- **Internal Site Support**: Index localhost, development servers, and private networks
-- **Authentication**: Bearer tokens, custom headers, and basic auth support
-- **Content Enrichment**: AI-generated search patterns and metadata
-- **Multi-format Support**: Process HTML, markdown, and structured content
-
-### 🔍 **Advanced Search Capabilities**
+**Request:**
 ```bash
-# Natural language search
-curl "http://localhost:8000/search/query?q=website%20development%20pricing"
-
-# Programmatic search
-curl -X POST "http://localhost:8000/search" \
+curl -X POST "http://localhost:8000/ask" \
   -H "Content-Type: application/json" \
-  -d '{"query": "customer support services", "max_results": 10}'
-```
-## 🚀 Usage Examples
-
-### 🌍 **Public Website Processing**
-
-```bash
-# Process external website
-basil-pipeline --url https://example.com --all
-
-# Search the processed content
-curl "http://localhost:8000/search/query?q=your%20search%20query"
+  -d '{"question": "What services do you offer?", "max_results": 5}'
 ```
 
-### 🏠 **Internal/Localhost Processing**
-
-```bash
-# Index localhost development server
-basil-pipeline --url http://localhost:4200 --internal --all
-
-# Index private network service with authentication
-export BASIL_AUTH_TOKEN="your-bearer-token"
-basil-pipeline --url http://192.168.1.100:8080 --internal --all
-
-# Index with custom headers
-export BASIL_CUSTOM_HEADERS='{"X-API-Key":"dev-key","Authorization":"Custom token"}'
-basil-pipeline --url http://internal.company.local --internal --max-pages 50 --all
+**Response:**
+```json
+{
+  "question": "What services do you offer?",
+  "answer": "We offer web development, AI integration, and search optimization services..."
+}
 ```
 
-### 📡 **API Usage**
+#### `POST /detect_intent`
+Detect intent from user messages.
 
+**Request:**
 ```bash
-# Index public site
+curl -X POST "http://localhost:8000/detect_intent" \
+  -H "Content-Type: application/json" \
+  -d '{"text": "I want to buy a ticket"}'
+```
+
+**Response:**
+```json
+{
+  "intent": "purchase_ticket",
+  "score": 0.95,
+  "extracted_info": {}
+}
+```
+
+### Indexing Endpoints
+
+#### `GET /index`
+Index a public website.
+
+**Request:**
+```bash
 curl -X GET "http://localhost:8000/index?site=https://example.com"
+```
 
-# Index internal site with authentication
+**Response:**
+```json
+{
+  "message": "Site indexing started for https://example.com",
+  "status": "accepted",
+  "site": "https://example.com"
+}
+```
+
+#### `POST /index-internal`
+Index internal/localhost sites with authentication.
+
+**Request:**
+```bash
 curl -X POST "http://localhost:8000/index-internal" \
   -H "Content-Type: application/json" \
   -d '{
     "site": "http://localhost:4200",
-    "max_pages": 25,
+    "max_pages": 50,
     "auth_token": "Bearer your-token",
     "custom_headers": {
       "X-API-Key": "dev-key-123"
@@ -244,319 +200,62 @@ curl -X POST "http://localhost:8000/index-internal" \
   }'
 ```
 
----
-
-## 🐳 Docker Configuration
-### Full Stack Deployment
-```bash
-# Start all services
-docker-compose up -d
-
-# View logs
-docker-compose logs -f basil-search
-docker-compose logs -f n8n
-```
-
-### Individual Services
-```bash
-# Search engine only
-cd basil-search
-docker-compose up -d basil-search
-
-# Workflows only  
-docker-compose up -d n8n
-
-# Production with Nginx
-cd basil-search
-docker-compose --profile production up -d
-```
-
-### Custom Website Processing
-```bash
-# Process specific website
-cd basil-search
-TARGET_URL=https://yourwebsite.com docker-compose --profile scraping run scraper
-```
-
----
-
-## ⚙️ Configuration
-
-### Environment Setup
-
-**Required Environment Variables:**
-```bash
-# Copy example configuration
-cp basil-search/.env.example basil-search/.env
-
-# Edit with your settings
-GROQ_API_KEY=your_groq_api_key_here
-
-# Optional: For internal site authentication
-BASIL_AUTH_TOKEN=your_bearer_token
-BASIL_AUTH_HEADER="Basic dXNlcjpwYXNz"
-BASIL_CUSTOM_HEADERS='{"X-API-Key":"key","Custom-Header":"value"}'
-```
-
-### Service Configuration
-
-| Variable | Service | Description | Required |
-|----------|---------|-------------|----------|
-| `GROQ_API_KEY` | Search | AI processing API key | ✅ |
-| `BASIL_AUTH_TOKEN` | Internal Sites | Bearer token for authenticated sites | ❌ |
-| `BASIL_AUTH_HEADER` | Internal Sites | Custom authorization header | ❌ |
-| `BASIL_CUSTOM_HEADERS` | Internal Sites | JSON object with custom headers | ❌ |
----
-
-## 📊 API Reference
-
-### Search Endpoints
-
-| Method | Endpoint | Description | Example |
-|--------|----------|-------------|---------|
-| `GET` | `/` | API information | `curl localhost:8000/` |
-| `POST` | `/search` | Semantic search | `{"query": "text", "max_results": 5}` |
-| `GET` | `/search/query` | Search with params | `?q=search&max_results=5` |
-| `GET` | `/health` | Health check | System status |
-| `GET` | `/stats` | Database statistics | Collection info |
-
-### Indexing Endpoints
-
-| Method | Endpoint | Description | Example |
-|--------|----------|-------------|---------|
-| `GET` | `/index` | Index public website | `?site=https://example.com` |
-| `POST` | `/index-internal` | Index internal/localhost sites | See examples below |
-
-### Document Endpoints
-
-| Method | Endpoint | Description | Example |
-|--------|----------|-------------|---------|
-| `POST` | `/detect_intent` | Analyze intent | `{"text": "customer message"}` |
-| `POST` | `/reload` | Reload database | Refresh vector store |
-
-### Response Examples
-
-**Search Response:**
+**Response:**
 ```json
-{
-  "results": [
-    {
-      "content": "Website development services...",
-      "metadata": {"source": "page.html", "section": "services"},
-      "score": 0.95
-    }
-  ],
-  "query": "website development",
-  "total_results": 1
-}
-```
-
-**Internal Site Indexing:**
-```bash
-# POST /index-internal
-curl -X POST "http://localhost:8000/index-internal" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "site": "http://localhost:4200",
-    "max_pages": 25,
-    "auth_token": "Bearer your-dev-token",
-    "custom_headers": {
-      "X-API-Key": "dev-key-123",
-      "X-Environment": "development"
-    }
-  }'
-
-# Response
 {
   "message": "Internal site indexing started for http://localhost:4200",
   "status": "accepted",
   "site": "http://localhost:4200",
-  "max_pages": 25,
+  "max_pages": 50,
   "type": "internal"
 }
 ```
 
-### 🏠 **Internal Site Types Supported**
+### Documentation
 
-| Type | Example | Use Case |
-|------|---------|----------|
-| **Localhost** | `http://localhost:4200` | Angular, React dev servers |
-| **Private IPs** | `http://192.168.1.100:8080` | Internal company services |
-| **Local Domains** | `http://app.local:3000` | Development environments |
-| **Containers** | `http://10.0.0.5:9000` | Docker/Kubernetes services |
+#### `GET /docs`
+Interactive API documentation (Swagger UI).
+
+**Request:**
+```bash
+curl http://localhost:8000/docs
+```
+
+**Response:**
+HTML page with interactive API documentation.
 
 ---
 
-## 🛠️ Development
+## 🔧 Local Development CLI
 
-### Local Development Setup
-
-```bash
-# Clone and setup
-git clone <repository-url>
-cd Basil/basil-search
-
-# Install dependencies
-pip install -r requirements.txt
-
-# Setup environment
-cp .env.example .env
-# Add your GROQ_API_KEY
-
-# Run development server
-python -m uvicorn app:app --reload --host 0.0.0.0 --port 8000
-```
-
-### Testing
+If you're working with the source code, use the local CLI:
 
 ```bash
-# Run tests
-cd basil-search
-pytest tests/
+git clone https://github.com/basil-retriever/Basil
+cd Basil
 
-# With coverage
-pytest --cov=src tests/
+# Make CLI executable
+chmod +x basil
 
-# Test specific component
-pytest tests/test_search_api.py -v
+# Check status
+./basil status
+
+# Start server
+./basil server
+
+# Run pipeline
+./basil pipeline --url https://example.com --all
+
+# Show help
+./basil help
 ```
-
-### Code Quality
-
-```bash
-# Format code
-black src/
-black routers/
-
-# Lint code  
-flake8 src/
-flake8 routers/
-
-# Type checking
-mypy src/
-```
-
----
-
-## 🚨 Troubleshooting
-
-### Common Issues
-
-**❌ GROQ_API_KEY not found**
-```bash
-# Solution: Ensure .env file exists with your API key
-cp basil-search/.env.example basil-search/.env
-# Edit .env and add: GROQ_API_KEY=your_api_key_here
-```
-
-**❌ Docker build fails**
-```bash
-# Solution: Clean Docker cache and rebuild
-docker system prune -a
-docker-compose build --no-cache
-```
-
-**❌ ChromaDB connection issues**
-```bash
-# Solution: Reset database
-rm -rf basil-search/chroma_db/
-cd basil-search
-python pipeline.py --load
-```
-
-**❌ N8N workflows not accessible**
-```bash
-# Solution: Check service status
-docker-compose ps
-docker-compose logs n8n
-```
-
-### Debug Mode
-
-```bash
-# Enable detailed logging
-LOG_LEVEL=DEBUG python basil-search/pipeline.py --all
-
-# Test individual components
-cd basil-search
-python pipeline.py --check-config
-python pipeline.py --test-groq
-
-# Health checks
-curl http://localhost:8000/health
-curl http://localhost:5678/healthz
-```
-
----
-
-## 📈 Performance & Scaling
-
-### Performance Metrics
-- **Scraping**: 1-2 pages/second with intelligent rate limiting
-- **AI Processing**: 10-50 search patterns per page
-- **Search Response**: Sub-second semantic search queries
-- **Concurrent Users**: Handles 100+ simultaneous search requests
-
-### Scaling Options
-```bash
-# Horizontal scaling with multiple instances
-docker-compose up --scale basil-search=3
-
-# Production deployment with load balancer
-cd basil-search
-docker-compose --profile production up -d
-```
-
----
-
-## 🌟 Use Cases
-
-### 🏢 **Business Automation**
-- **Content Management**: Searchable knowledge bases from websites
-- **Lead Processing**: Extract and route customer requirements
-
-### 🛒 **E-commerce Enhancement**
-- **Product Search**: Semantic product discovery
-- **Customer Service**: Automated response generation
-- **Inventory Management**: Content-based product matching
-
-### 📚 **Knowledge Management**
-- **Documentation**: Searchable internal documentation
-- **Research**: Academic paper and content analysis  
-- **Training**: Interactive learning content discovery
-
----
-
-## 🤝 Contributing
-
-We welcome contributions! Here's how to get started:
-
-1. **Fork** the repository
-2. **Create** a feature branch (`git checkout -b feature/amazing-feature`)
-3. **Commit** your changes (`git commit -m 'Add amazing feature'`)
-4. **Push** to the branch (`git push origin feature/amazing-feature`)
-5. **Open** a Pull Request
-
-### Development Guidelines
-- Follow existing code style and conventions
-- Add tests for new functionality
-- Update documentation for API changes
-- Ensure Docker builds pass
 
 ---
 
 ## 📄 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+MIT License - see the [LICENSE](LICENSE) file for details.
 
 ---
 
-## 🌟 Star History
-
-If you find Basil useful for your business automation needs, please consider giving it a star! ⭐
-
----
-
-**Built with**: Python, FastAPI, ChromaDB, Groq AI, N8N, Docker
-
-*Basil - Transforming websites into intelligent business automation platforms* 🌿
+**Built with**: Python, FastAPI, ChromaDB, Groq AI, Docker

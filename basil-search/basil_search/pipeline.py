@@ -142,7 +142,7 @@ class WebsitePipeline:
         
         try:
             import uvicorn
-            from app import app
+            from basil_search.app import app
             
             uvicorn.run(
                 app,

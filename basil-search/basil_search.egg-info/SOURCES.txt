@@ -1,7 +1,9 @@
 .DS_Store
 .gitignore
 README.md
+basil
 docker-compose.yml
+init_collections.py
 install.sh
 pyproject.toml
 workflow.json
@@ -71,6 +73,5 @@ basil-search/chroma_db/93a4b6f8-ef93-4185-975a-b27d69a99ecb/link_lists.bin
 basil-search/docs/index.html
 basil-search/site_scanner/populate_db.py
 basil-search/site_scanner/site_scanner.py
-chroma_db/chroma.sqlite3
 dist/basil_search-1.0.0.post0+dirty-py3-none-any.whl
 dist/basil_search-1.0.0.post0+dirty.tar.gz

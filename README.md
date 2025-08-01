@@ -32,11 +32,14 @@ pip install git+https://github.com/basil-retriever/Basil.git@v0.1.0
 # Create .env file with your Groq API key
 echo "GROQ_API_KEY=your_groq_api_key_here" > .env
 
-# Process a website
-basil-pipeline --url https://example.com --all
+# Process a public website
+python -m basil_search.pipeline --url https://example.com --process
+
+# Process a internal or dev website
+python -m basil_search.pipeline --url http:/localhost:4200 --process --internal
 
 # Start the server
-basil-server
+source venv/bin/activate && basil-server
 ```
 
 #### Option 2: Docker

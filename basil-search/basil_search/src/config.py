@@ -3,7 +3,19 @@ from pathlib import Path
 from typing import Optional
 from dotenv import load_dotenv
 
-load_dotenv()
+# Try to find .env file in current working directory first, then parent directories
+env_paths = [
+    os.path.join(os.getcwd(), '.env'),
+    os.path.join(os.path.dirname(os.getcwd()), '.env'),
+    os.path.join(os.path.dirname(os.path.dirname(os.getcwd())), '.env')
+]
+
+for env_path in env_paths:
+    if os.path.exists(env_path):
+        load_dotenv(env_path)
+        break
+else:
+    load_dotenv()  # fallback to default behavior
 
 class Config:
     PROJECT_ROOT = Path(os.getcwd())  # Use current working directory instead of package directory
