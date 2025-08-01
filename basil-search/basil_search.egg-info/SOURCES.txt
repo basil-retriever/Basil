@@ -3,7 +3,6 @@
 README.md
 basil
 docker-compose.yml
-init_collections.py
 install.sh
 pyproject.toml
 workflow.json
@@ -41,7 +40,6 @@ basil-search/basil_search.egg-info/top_level.txt
 basil-search/basil_search/routers/.DS_Store
 basil-search/basil_search/routers/__init__.py
 basil-search/basil_search/routers/ask.py
-basil-search/basil_search/routers/detect_intent.py
 basil-search/basil_search/routers/site_scanner.py
 basil-search/basil_search/src/.DS_Store
 basil-search/basil_search/src/__init__.py
@@ -57,19 +55,6 @@ basil-search/basil_search/src/scrapers/internal_scraper.py
 basil-search/basil_search/src/scrapers/website_scraper.py
 basil-search/basil_search/src/utils/__init__.py
 basil-search/basil_search/src/utils/groq_client.py
-basil-search/chroma_db/chroma.sqlite3
-basil-search/chroma_db/2a9e7d33-fbcb-46b4-85c2-82934a8e8435/data_level0.bin
-basil-search/chroma_db/2a9e7d33-fbcb-46b4-85c2-82934a8e8435/header.bin
-basil-search/chroma_db/2a9e7d33-fbcb-46b4-85c2-82934a8e8435/length.bin
-basil-search/chroma_db/2a9e7d33-fbcb-46b4-85c2-82934a8e8435/link_lists.bin
-basil-search/chroma_db/8ef0c844-484f-45c1-9a96-1ebe2ef4a26e/data_level0.bin
-basil-search/chroma_db/8ef0c844-484f-45c1-9a96-1ebe2ef4a26e/header.bin
-basil-search/chroma_db/8ef0c844-484f-45c1-9a96-1ebe2ef4a26e/length.bin
-basil-search/chroma_db/8ef0c844-484f-45c1-9a96-1ebe2ef4a26e/link_lists.bin
-basil-search/chroma_db/93a4b6f8-ef93-4185-975a-b27d69a99ecb/data_level0.bin
-basil-search/chroma_db/93a4b6f8-ef93-4185-975a-b27d69a99ecb/header.bin
-basil-search/chroma_db/93a4b6f8-ef93-4185-975a-b27d69a99ecb/length.bin
-basil-search/chroma_db/93a4b6f8-ef93-4185-975a-b27d69a99ecb/link_lists.bin
 basil-search/docs/index.html
 basil-search/site_scanner/populate_db.py
 basil-search/site_scanner/site_scanner.py

@@ -6,7 +6,7 @@ import os
 
 load_dotenv()
 
-from basil_search.routers import ask, site_scanner
+from basil_search.routers import ask, site_scanner, search
 
 app = FastAPI(title="BasilApi", version="1.0")
 
@@ -32,6 +32,7 @@ app.add_middleware(
 )
 
 app.include_router(ask.router)
+app.include_router(search.router)
 app.include_router(site_scanner.router)
 
 def main():

@@ -34,13 +34,13 @@ echo "GROQ_API_KEY=your_groq_api_key_here" > .env
 echo "ALLOWED_ORIGINS=*" >> .env
 
 # Process a public website
-python -m basil_search.pipeline --url https://example.com --process
+python -m basil_search.pipeline --url https://example.com --all
 
 # Process a internal or dev website
 python -m basil_search.pipeline --url http:/localhost:4200 --process --internal
 
 # Start the server
-source venv/bin/activate && basil-server
+source venv/bin/activate && basil-serve
 ```
 
 #### Option 2: Docker
@@ -78,6 +78,14 @@ python -m uvicorn app:app --host 0.0.0.0 --port 8000
 ```
 
 ---
+
+## local Development
+1. Fork this repo
+2. Do your changes
+3. `pip install -e .`
+4. Go to a test project and create a virtual environment ` python -m venv venv`
+5. `source venv/bin/activate`  On Windows: `venv\Scripts\activate`
+6. pip install -e /path/to/basil
 
 ## 📡 API Endpoints
 

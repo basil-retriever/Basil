@@ -1,6 +1,4 @@
 basil_search
-chroma_db
-data
 docs
 scripts
 site_scanner

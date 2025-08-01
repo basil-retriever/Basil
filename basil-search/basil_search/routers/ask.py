@@ -1,42 +1,130 @@
-from fastapi import APIRouter
-from fastapi.responses import JSONResponse
+from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
-from sentence_transformers import SentenceTransformer
-import os
+from typing import List, Dict, Any, Optional
+import time
+import logging
 import requests
+from basil_search.src.database import ChromaManager
+from basil_search.src.config import Config
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
 class AskRequest(BaseModel):
     question: str
+    max_context_results: Optional[int] = 5
 
+class SearchResult(BaseModel):
+    document: str
+    metadata: Dict[str, Any]
+    similarity: float
+    distance: float
+
+class AskResponse(BaseModel):
+    question: str
+    answer: str
+    context_sources: List[SearchResult]
+    processing_time: Optional[float] = None
+
+# Initialize ChromaDB manager
 try:
-    embedding_model = SentenceTransformer('all-MiniLM-L6-v2')
+    chroma_manager = ChromaManager()
 except Exception as e:
-    raise RuntimeError(f"Failed to load embedding model: {e}")
+    logger.error(f"Failed to initialize ChromaDB: {e}")
+    chroma_manager = None
 
-@router.post("/ask")
-def ask_question(req: AskRequest):
-    GROQ_API_KEY = os.getenv("GROQ_API_KEY")
-    if not GROQ_API_KEY:
-        return JSONResponse(status_code=500, content={"error": "Missing GROQ_API_KEY environment variable."})
-
-    headers = {
-        "Authorization": f"Bearer {GROQ_API_KEY}",
-        "Content-Type": "application/json"
-    }
-    payload = {
-        "model": "meta-llama/llama-4-scout-17b-16e-instruct",
-        "messages": [{"role": "user", "content": req.question}]
-    }
-
+@router.post("/ask", response_model=AskResponse)
+async def ask_question(request: AskRequest):
+    if not chroma_manager:
+        raise HTTPException(status_code=500, detail="Database not available. Please check ChromaDB setup.")
+    
     try:
-        response = requests.post("https://api.groq.com/openai/v1/chat/completions", headers=headers, json=payload)
-        response.raise_for_status()
+        start_time = time.time()
+        
+        if not request.question.strip():
+            raise HTTPException(status_code=400, detail="Question cannot be empty")
+        
+        # Get GROQ API key
+        GROQ_API_KEY = Config.GROQ_API_KEY
+        if not GROQ_API_KEY:
+            raise HTTPException(status_code=500, detail="GROQ_API_KEY not configured")
+        
+        # First, perform semantic search to get relevant context
+        search_results = chroma_manager.search(
+            query=request.question,
+            n_results=request.max_context_results
+        )
+        
+        # Build context from search results
+        context_texts = []
+        context_sources = []
+        
+        for result in search_results['results']:
+            context_texts.append(f"Source: {result['metadata'].get('title', 'Unknown')}\n{result['document']}")
+            context_sources.append(SearchResult(
+                document=result['document'],
+                metadata=result['metadata'],
+                similarity=result['similarity'],
+                distance=result['distance']
+            ))
+        
+        # Create RAG prompt
+        if context_texts:
+            context = "\n\n---\n\n".join(context_texts)
+            rag_prompt = f"""Based on the following context from the website, answer the user's question. If the context doesn't contain enough information to answer the question, say so clearly.
+
+Context:
+{context}
+
+Question: {request.question}
+
+Answer:"""
+        else:
+            # Fallback if no context found
+            rag_prompt = f"""I don't have any relevant context from the scraped website content to answer your question. 
+
+Question: {request.question}
+
+Please note: No relevant content was found in the database. You may need to scrape and process website content first, or the question might be outside the scope of the available content."""
+        
+        # Call Groq API
+        headers = {
+            "Authorization": f"Bearer {GROQ_API_KEY}",
+            "Content-Type": "application/json"
+        }
+        payload = {
+            "model": Config.GROQ_MODEL,
+            "messages": [{"role": "user", "content": rag_prompt}],
+            "max_tokens": 1000
+        }
+        
+        response = requests.post(
+            Config.GROQ_API_URL,
+            headers=headers,
+            json=payload,
+            timeout=30
+        )
+        
+        if response.status_code != 200:
+            raise HTTPException(status_code=500, detail=f"Groq API error: {response.status_code}")
+        
         result = response.json()
         answer = result["choices"][0]["message"]["content"]
-        return {"question": req.question, "answer": answer}
-    except requests.exceptions.HTTPError:
-        return JSONResponse(status_code=response.status_code, content={"error": f"HTTP error: {response.text}"})
+        
+        processing_time = time.time() - start_time
+        
+        return AskResponse(
+            question=request.question,
+            answer=answer,
+            context_sources=context_sources,
+            processing_time=processing_time
+        )
+        
+    except requests.exceptions.RequestException as e:
+        logger.error(f"Groq API request error: {e}")
+        raise HTTPException(status_code=500, detail=f"AI service unavailable: {str(e)}")
     except Exception as e:
-        return JSONResponse(status_code=500, content={"error": f"Unexpected response structure from Groq API: {str(e)}"})
+        logger.error(f"Ask error: {e}")
+        raise HTTPException(status_code=500, detail=f"Ask failed: {str(e)}")
