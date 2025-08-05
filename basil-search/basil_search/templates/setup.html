@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Basil Setup - AI-Powered Website Search</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .setup-container {
+            background: white;
+            border-radius: 12px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
+            width: 100%;
+        }
+        
+        .logo {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .logo h1 {
+            color: #2d3748;
+            font-size: 2.5rem;
+            margin-bottom: 8px;
+        }
+        
+        .logo p {
+            color: #718096;
+            font-size: 1.1rem;
+        }
+        
+        .setup-form {
+            space: 20px;
+        }
+        
+        .form-group {
+            margin-bottom: 25px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2d3748;
+        }
+        
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.2s;
+        }
+        
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .form-group small {
+            display: block;
+            margin-top: 4px;
+            color: #718096;
+            font-size: 0.9rem;
+        }
+        
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+        
+        .checkbox-group input[type="checkbox"] {
+            margin-right: 12px;
+            width: 18px;
+            height: 18px;
+        }
+        
+        .checkbox-group label {
+            margin-bottom: 0;
+            font-weight: 500;
+        }
+        
+        .submit-btn {
+            width: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 16px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        
+        .submit-btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        .submit-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            margin-top: 20px;
+        }
+        
+        .loading-spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .error {
+            background-color: #fed7d7;
+            color: #c53030;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        
+        .success {
+            background-color: #c6f6d5;
+            color: #25543e;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="setup-container">
+        <div class="logo">
+            <h1>🌿 Basil</h1>
+            <p>AI-Powered Website Search Engine</p>
+        </div>
+        
+        <div id="error-message" class="error"></div>
+        <div id="success-message" class="success"></div>
+        
+        <form id="setup-form" class="setup-form">
+            <div class="form-group">
+                <label for="groq-key">Groq API Key *</label>
+                <input type="password" id="groq-key" name="groq_key" required 
+                       placeholder="Enter your Groq API key">
+                <small>Get your API key from <a href="https://console.groq.com/keys" target="_blank">Groq Console</a></small>
+            </div>
+            
+            <div class="form-group">
+                <label for="website-url">Website URL *</label>
+                <input type="url" id="website-url" name="website_url" required 
+                       placeholder="https://example.com">
+                <small>The website you want to index and make searchable</small>
+            </div>
+            
+            <div class="form-group">
+                <label for="allowed-origins">Allowed Origins</label>
+                <textarea id="allowed-origins" name="allowed_origins" rows="3" 
+                          placeholder="https://yourapp.com, https://localhost:3000"
+                          >*</textarea>
+                <small>Comma-separated list of domains allowed to access the API. Use "*" for all origins.</small>
+            </div>
+            
+            <div class="form-group">
+                <label for="max-pages">Maximum Pages to Index</label>
+                <input type="number" id="max-pages" name="max_pages" value="50" min="1" max="1000">
+                <small>Limit the number of pages to scrape (default: 50)</small>
+            </div>
+            
+            <div class="checkbox-group">
+                <input type="checkbox" id="internal-site" name="internal_site">
+                <label for="internal-site">Internal/Development Site</label>
+            </div>
+            <small style="margin-left: 30px; display: block; margin-bottom: 20px; color: #718096;">
+                Check this for localhost, private networks, or sites requiring special authentication
+            </small>
+            
+            <button type="submit" class="submit-btn" id="submit-btn">
+                Start Indexing
+            </button>
+        </form>
+        
+        <div id="loading" class="loading">
+            <div class="loading-spinner"></div>
+            <p>Setting up Basil and indexing your website...</p>
+            <p><small>This may take a few minutes depending on your site size.</small></p>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('setup-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const submitBtn = document.getElementById('submit-btn');
+            const loading = document.getElementById('loading');
+            const errorDiv = document.getElementById('error-message');
+            const successDiv = document.getElementById('success-message');
+            
+            // Hide previous messages
+            errorDiv.style.display = 'none';
+            successDiv.style.display = 'none';
+            
+            // Show loading state
+            submitBtn.disabled = true;
+            loading.style.display = 'block';
+            
+            // Collect form data
+            const formData = {
+                groq_key: document.getElementById('groq-key').value,
+                website_url: document.getElementById('website-url').value,
+                allowed_origins: document.getElementById('allowed-origins').value,
+                max_pages: parseInt(document.getElementById('max-pages').value),
+                internal_site: document.getElementById('internal-site').checked
+            };
+            
+            try {
+                const response = await fetch('/setup', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(formData)
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok) {
+                    successDiv.innerHTML = `
+                        <strong>Setup completed successfully!</strong><br>
+                        ${result.message}<br>
+                        <a href="/docs" target="_blank">View API Documentation</a>
+                    `;
+                    successDiv.style.display = 'block';
+                    
+                    // Optionally redirect to docs after a delay
+                    setTimeout(() => {
+                        window.location.href = '/docs';
+                    }, 3000);
+                } else {
+                    throw new Error(result.detail || 'Setup failed');
+                }
+            } catch (error) {
+                errorDiv.innerHTML = `<strong>Setup failed:</strong> ${error.message}`;
+                errorDiv.style.display = 'block';
+            } finally {
+                // Hide loading state
+                submitBtn.disabled = false;
+                loading.style.display = 'none';
+            }
+        });
+        
+        // Auto-detect localhost URLs and suggest internal site
+        document.getElementById('website-url').addEventListener('input', function(e) {
+            const url = e.target.value.toLowerCase();
+            const internalCheckbox = document.getElementById('internal-site');
+            
+            if (url.includes('localhost') || url.includes('127.0.0.1') || url.includes('192.168.') || url.includes('10.0.')) {
+                internalCheckbox.checked = true;
+            }
+        });
+    </script>
+</body>
+</html>

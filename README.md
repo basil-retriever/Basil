@@ -14,9 +14,10 @@ Transform any website into a powerful, searchable knowledge base with just one c
 
 ### Prerequisites
 
-Create a `.env` file with your Groq API key:
+Create a `.env` file with your Groq API key nd allowed origins:
 ```bash
 GROQ_API_KEY=your_groq_api_key_here
+ALLOWED_ORIGINS=*
 ```
 
 ### 📦 Installation Options
@@ -26,7 +27,7 @@ GROQ_API_KEY=your_groq_api_key_here
 # Install latest version
 pip install git+https://github.com/basil-retriever/Basil.git
 
-# Install specific version
+# OR  Install specific version
 pip install git+https://github.com/basil-retriever/Basil.git@v0.1.0
 
 # Create .env file with your Groq API key and CORS origins
@@ -36,50 +37,41 @@ echo "ALLOWED_ORIGINS=*" >> .env
 # Process a public website
 python -m basil_search.pipeline --url https://example.com --all
 
-# Process a internal or dev website
+# OR Process a internal or dev website
 python -m basil_search.pipeline --url http:/localhost:4200 --process --internal
-
-# Start the server
-source venv/bin/activate && basil-serve
 ```
 
 #### Option 2: Docker
 ```bash
 git clone https://github.com/basil-retriever/Basil
-cd Basil
+   ```
+1. **Build and run the Docker container:**
+   ```bash
+   cd basil-search
+   docker build -t basil:latest .
+   docker run -p 8000:8000 basil:latest
+   ```
 
-# Add your Groq API key to .env file
-echo "GROQ_API_KEY=your_groq_api_key_here" > basil-search/.env
+2. **Access the setup page:**
+   Open your browser and go to `http://localhost:8000`
 
-# Start with Docker
-docker-compose up -d
+3. **Configure Basil:**
+   - Enter your Groq API key
+   - Provide the website URL you want to index
+   - Configure allowed origins (CORS) * for any
+   - Set maximum pages to index
+   - Check "Internal/Development Site" if indexing localhost or private networks
+
+4. **Start indexing:**
+   Click "Start Indexing" and wait for the process to complete
 
 # Process a website
 curl -X GET "http://localhost:8000/index?site=https://example.com"
 ```
 
-#### Option 3: Plain Python
-```bash
-git clone https://github.com/basil-retriever/Basil
-cd Basil
-
-# Install dependencies
-pip install -r basil-search/requirements.txt
-
-# Add your Groq API key
-echo "GROQ_API_KEY=your_groq_api_key_here" > basil-search/.env
-
-# Process a website
-cd basil-search
-python pipeline.py --url https://example.com --all
-
-# Start the server
-python -m uvicorn app:app --host 0.0.0.0 --port 8000
-```
-
 ---
 
-## local Development
+## local Development or contributions
 1. Fork this repo
 2. Do your changes
 3. `pip install -e .`

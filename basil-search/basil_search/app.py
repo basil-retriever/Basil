@@ -1,12 +1,15 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import RedirectResponse
 from dotenv import load_dotenv
 import uvicorn
 import os
+from pathlib import Path
+import json
 
 load_dotenv()
 
-from basil_search.routers import ask, site_scanner, search
+from basil_search.routers import ask, site_scanner, search, setup
 
 app = FastAPI(title="BasilApi", version="1.0")
 
@@ -31,6 +34,27 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+@app.get("/")
+async def root():
+    """Root endpoint - redirect to setup or docs based on configuration"""
+    config_path = Path.cwd() / "basil_config.json"
+    
+    # Check if setup is completed
+    if config_path.exists():
+        try:
+            with open(config_path, "r") as f:
+                config_data = json.load(f)
+            
+            # If setup is completed, redirect to docs
+            if config_data.get("setup_completed"):
+                return RedirectResponse(url="/docs")
+        except:
+            pass
+    
+    # If not set up, redirect to setup page
+    return RedirectResponse(url="/setup")
+
+app.include_router(setup.router, prefix="/setup", tags=["setup"])
 app.include_router(ask.router)
 app.include_router(search.router)
 app.include_router(site_scanner.router)
