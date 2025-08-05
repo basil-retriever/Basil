@@ -47,7 +47,6 @@ git clone https://github.com/basil-retriever/Basil
    ```
 1. **Build and run the Docker container:**
    ```bash
-   cd basil-search
    docker build -t basil:latest .
    docker run -p 8000:8000 basil:latest
    ```
@@ -70,13 +69,13 @@ curl -X GET "http://localhost:8000/index?site=https://example.com"
 ```
 
 ---
-
 ## local Development or contributions
 1. Fork this repo
 2. Do your changes
 3. `pip install -e .`
 4. Go to a test project and create a virtual environment ` python -m venv venv`
 5. `source venv/bin/activate`  On Windows: `venv\Scripts\activate`
+7. go out the virtual environment and install basil in editable mode
 6. pip install -e /path/to/basil
 
 ## 📡 API Endpoints
